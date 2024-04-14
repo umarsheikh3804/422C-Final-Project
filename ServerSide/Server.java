@@ -21,6 +21,7 @@ public class Server {
                 System.out.println("incoming transmission");
 
                 Thread t = new Thread(new ClientHandler(clientSocket));
+                t.start();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

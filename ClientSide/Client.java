@@ -8,30 +8,63 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
+
+    private static String host = "11.20.0.168";
+    private BufferedReader fromServer;
+    private PrintWriter toServer;
+    private Scanner consoleInput = new Scanner(System.in);
+
     public static void main (String[] args) {
-        new Client().setupNetworking();
+        try {
+            new Client().setupNetworking();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupNetworking() {
         try {
-            Socket socket = new Socket("11.20.0.168", 1056);
+            Socket socket = new Socket(host, 1056);
             System.out.println("Network established");
 
-            PrintWriter writer = new PrintWriter(socket.getOutputStream());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            toServer = new PrintWriter(socket.getOutputStream());
+            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                String input = scanner.nextLine();
-                writer.println(input);
-                writer.flush();
+            Thread readerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String input;
+                    try {
+                        while ((input = fromServer.readLine()) != null) {
+                            System.out.println("From server: " + input);
+                            processRequest(input);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
 
-                String received = reader.readLine();
-                System.out.println("I RECEIVED BACK: " + received);
-            }
+//            writerThread to send objects to the server
+            Thread writerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        String input = consoleInput.nextLine();
+                    }
+                }
+            });
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            readerThread.start();
+            writerThread.start();
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
         }
+
+    }
+
+    protected void processRequest(String input) {
+        return;
     }
 }
