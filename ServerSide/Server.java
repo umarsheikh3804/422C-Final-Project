@@ -6,8 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
+
+    private List<Item> catalog = new ArrayList<Item>();
     public static void main(String[] args) {
         new Server().setupNetworking();
     }
