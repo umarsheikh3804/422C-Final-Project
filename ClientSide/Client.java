@@ -1,5 +1,10 @@
 package ClientSide;
 
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,19 +12,34 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client {
+public class Client extends Application {
 
-    private static String host = "11.20.0.168";
+    private static String host = "11.20.0.186";
     private BufferedReader fromServer;
     private PrintWriter toServer;
     private Scanner consoleInput = new Scanner(System.in);
+    public static void main(String[] args) {
+        launch(args);
+    }
 
-    public static void main (String[] args) {
+    @Override
+    public void start(Stage primaryStage) throws IOException {
         try {
             new Client().setupNetworking();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
+        Parent root = loader.load();
+
+
+        SceneController controller = loader.getController();
+        controller.init(primaryStage);
+
+        Scene scene = new Scene(root);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     private void setupNetworking() {
@@ -68,4 +88,3 @@ public class Client {
         return;
     }
 }
-

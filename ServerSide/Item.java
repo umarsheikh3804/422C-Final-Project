@@ -11,7 +11,6 @@ public class Item implements Serializable {
     private List<String> previous;
     private Date lastCheckout;
     private Image image;
-    public Item() {}
 
     public Item(Description description, String current, List<String> previous, Date lastCheckout, Image image) {
         this.description = description;
