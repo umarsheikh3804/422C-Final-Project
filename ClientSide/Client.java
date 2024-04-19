@@ -1,23 +1,24 @@
 package ClientSide;
 
+import ServerSide.Item;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+
+import java.io.*;
 import java.net.Socket;
+import java.util.List;
 import java.util.Scanner;
 
 public class Client extends Application {
 
-    private static String host = "11.20.0.186";
-    private BufferedReader fromServer;
-    private PrintWriter toServer;
-    private Scanner consoleInput = new Scanner(System.in);
+    private static String host = "11.20.0.187";
+    protected ObjectInputStream fromServer;
+    protected PrintWriter toServer;
+
+    protected List<Item> catalog;
     public static void main(String[] args) {
         launch(args);
     }
@@ -32,10 +33,10 @@ public class Client extends Application {
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
         Parent root = loader.load();
-
+//
 
         SceneController controller = loader.getController();
-        controller.init(primaryStage);
+        controller.init(primaryStage, catalog);
 
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
@@ -48,17 +49,21 @@ public class Client extends Application {
             System.out.println("Network established");
 
             toServer = new PrintWriter(socket.getOutputStream());
-            fromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            fromServer = new ObjectInputStream(socket.getInputStream());
 
             Thread readerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     String input;
                     try {
-                        while ((input = fromServer.readLine()) != null) {
-                            System.out.println("From server: " + input);
-                            processRequest(input);
+//                        only really need to read books from server when displaying catalog to user
+//                        or showing user their current checked out books
+                        while (true) {
+                            Item item = (Item) (fromServer.readObject());
+                            catalog.add(item);
+                            System.out.println(item);
                         }
+//
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -69,9 +74,8 @@ public class Client extends Application {
             Thread writerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    while (true) {
-                        String input = consoleInput.nextLine();
-                    }
+//                    only really need to send books that are checked out or returned to the server
+//                    possibly user id and password for mongodb database if time permits
                 }
             });
 

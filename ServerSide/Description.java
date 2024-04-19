@@ -17,6 +17,12 @@ public class Description implements Serializable {
         this.summary = summary;
     }
 
+    @Override
+    public String toString() {
+        return "[" + itemType + ": " + title + ", " + author + ", " + pages + "]";
+    }
+
+
     public String getItemType() {return this.itemType;}
 
     public String getTitle() {return this.title;}
