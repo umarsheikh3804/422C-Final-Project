@@ -2,6 +2,8 @@ package ClientSide;
 
 import ServerSide.Item;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -9,7 +11,9 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Observable;
 import java.util.Scanner;
 
 public class Client extends Application {
@@ -18,7 +22,7 @@ public class Client extends Application {
     protected ObjectInputStream fromServer;
     protected PrintWriter toServer;
 
-    protected List<Item> catalog;
+    protected ObservableList<Item> catalog = FXCollections.observableArrayList();;
     public static void main(String[] args) {
         launch(args);
     }
@@ -63,7 +67,7 @@ public class Client extends Application {
                             catalog.add(item);
                             System.out.println(item);
                         }
-//
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

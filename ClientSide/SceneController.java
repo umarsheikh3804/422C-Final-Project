@@ -1,19 +1,25 @@
 package ClientSide;
 
 import ServerSide.Item;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Observable;
 
 public class SceneController {
 
-    private Stage stage;
-    private List<Item> catalog;
+    @FXML
+    public TableView<Item> table = new TableView<>();
+    private Stage stage = new Stage();
+    private ObservableList<Item> catalog;
 
     @FXML
     public void loginPressed(ActionEvent actionEvent) {
@@ -27,18 +33,17 @@ public class SceneController {
 
             displayCatalog();
 
-        } catch (Exception e) {};
+        } catch (Exception e) {e.printStackTrace();};
     }
 
     public void displayCatalog() {
-        for (Item i : catalog) {
-
-        }
+        System.out.println(Arrays.toString(catalog.toArray()));
+        table.setItems(catalog);
     }
 
     public void init(Stage primaryStage, List<Item> catalog) {
         this.stage = primaryStage;
-        this.catalog = catalog;
+        this.catalog = (ObservableList<Item>) catalog;
     }
 
     public void checkout_clicked(ActionEvent actionEvent) {
