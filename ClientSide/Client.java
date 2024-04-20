@@ -11,10 +11,8 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Observable;
-import java.util.Scanner;
 
 public class Client extends Application {
 
@@ -22,32 +20,35 @@ public class Client extends Application {
     protected ObjectInputStream fromServer;
     protected PrintWriter toServer;
 
-    protected ObservableList<Item> catalog = FXCollections.observableArrayList();;
+//    private SceneController controller;
+
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        try {
-            new Client().setupNetworking();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
         Parent root = loader.load();
-//
-
         SceneController controller = loader.getController();
-        controller.init(primaryStage, catalog);
+        controller.setStage(primaryStage);
+
+//        SceneController controller = loader.getController();
+//        loader.setController(controller);
 
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        try {
+            new Client().setupNetworking(controller);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private void setupNetworking() {
+    private void setupNetworking(SceneController controller) {
         try {
             Socket socket = new Socket(host, 1056);
             System.out.println("Network established");
@@ -58,18 +59,20 @@ public class Client extends Application {
             Thread readerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String input;
                     try {
 //                        only really need to read books from server when displaying catalog to user
 //                        or showing user their current checked out books
-                        while (true) {
-                            Item item = (Item) (fromServer.readObject());
-                            catalog.add(item);
-                            System.out.println(item);
-                        }
+//                        while () {
+                        ArrayList<Item> catalog = (ArrayList<Item>) (fromServer.readObject());
+                            controller.populateCatalog(catalog);
+//                            controller.showCatalog();
+//                        }
+
 
                     } catch (Exception e) {
                         e.printStackTrace();
+                    } finally {
+                        System.out.println("populated catalog");
                     }
                 }
             });

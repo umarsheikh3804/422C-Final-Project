@@ -15,10 +15,10 @@ public class Server {
 
     private static List<Item> catalog = new ArrayList<Item>();
     public static void main(String[] args) throws MalformedURLException {
-        catalog.add(new Item(new Description("Book", "The Road", "Cormac McCarthy", 200, ""), "Billy", null, null, new URL("file:images/TR.jpg")));
+        catalog.add(new Item("Book", "The Road", "Cormac McCarthy", 200, "", "Billy", null, null, new URL("file:images/TR.jpg")));
 //        catalog.add(new Item(new Description("Book", "The Great Gatsby", "", 200, ""), "Bob", null, null, null));
-        catalog.add(new Item(new Description("Book", "The Catcher in the Rye", "J.D. Salinger", 200, ""), "Joe", null, null, new URL("file:images/CR.jpg")));
-        catalog.add(new Item(new Description("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, ""), "Sam", null, null, new URL("file:images/HP.jpg")));
+        catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "Joe", null, null, new URL("file:images/CR.jpg")));
+        catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "Sam", null, null, new URL("file:images/HP.jpg")));
         new Server().setupNetworking();
     }
 
@@ -56,10 +56,15 @@ public class Server {
                 ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
                 System.out.println("Gets here 3");
 
-                for (Item i : catalog) {
-                    oos.reset();
-                    oos.writeObject(i);
-                }
+//                for (Item i : catalog) {
+//                    oos.reset();
+//                    oos.writeObject(i);
+//                }
+
+                oos.reset();
+                oos.writeObject(catalog);
+
+//                oos.writeObject(new ArrayList<>(catalog));
 
                 System.out.println("Gets here 4");
 

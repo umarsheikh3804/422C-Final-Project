@@ -60,13 +60,13 @@
                             <children>
                                 <ScrollPane layoutX="48.0" layoutY="46.0" prefHeight="260.0" prefWidth="391.0">
                                     <content>
-                                        <TableView fx:id="table" prefHeight="246.0" prefWidth="428.0">
+                                        <TableView fx:id="tableV" prefHeight="246.0" prefWidth="428.0">
                                             <columns>
                                                 <TableColumn prefWidth="75.0" text="Item Type" />
                                                 <TableColumn prefWidth="75.0" text="Title" />
                                                 <TableColumn prefWidth="75.0" text="Author" />
-                                                <TableColumn prefWidth="75.0" text="Pages" />
-                                                <TableColumn prefWidth="75.0" text="Image" />
+<!--                                                <TableColumn prefWidth="75.0" text="Pages" />-->
+<!--                                                <TableColumn prefWidth="75.0" text="Image" />-->
                                             </columns>
                                         </TableView>
                                     </content>

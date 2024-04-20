@@ -1,5 +1,8 @@
 package ServerSide;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
+
 import java.io.Serializable;
 
 public class Description implements Serializable {
@@ -23,7 +26,12 @@ public class Description implements Serializable {
     }
 
 
-    public String getItemType() {return this.itemType;}
+    public String getItemType() {return this.itemType;
+    }
+
+    public ObservableValue<String> itemTypeProperty() {
+        return new ReadOnlyStringWrapper(this.itemType);
+    }
 
     public String getTitle() {return this.title;}
 

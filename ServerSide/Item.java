@@ -1,5 +1,9 @@
 package ServerSide;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.image.Image;
 
 import java.awt.*;
@@ -15,18 +19,56 @@ public class Item implements Serializable {
     private Date lastCheckout;
     private URL image;
 
+    private String itemType;
+    private String title;
+    private String author;
+    private int pages;
+    private String summary;
 
-    public Item(Description description, String current, List<String> previous, Date lastCheckout, URL image) {
-        this.description = description;
+
+
+//    @Override
+//    public String toString() {
+//        return "[" + itemType + ": " + title + ", " + author + ", " + pages + "]";
+//    }
+
+
+    public String getItemType() {return this.itemType;
+    }
+
+    public StringProperty itemTypeProperty() {
+        return new SimpleStringProperty(this.itemType);
+    }
+
+    public ObservableValue<String> titleProperty() {
+        return new SimpleStringProperty(this.title);
+    }
+
+    public ObservableValue<String> authorProperty() {
+        return new SimpleStringProperty(this.author);
+    }
+
+    public String getTitle() {return this.title;}
+
+    public String getAuthor() {return this.author;}
+
+    public int getPages() {return this.pages;}
+
+    public String getSummary() {return this.summary;}
+
+
+    public Item(String itemType, String title, String author, int pages, String summary, String current, List<String> previous, Date lastCheckout, URL image) {
+//        this.description = description;
         this.current = current;
         this.previous = previous;
         this.lastCheckout = lastCheckout;
         this.image = image;
+        this.itemType = itemType;
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.summary = summary;
     }
 
-    @Override
-    public String toString() {
-        return current + ": " + description.toString();
-    }
 }
 
