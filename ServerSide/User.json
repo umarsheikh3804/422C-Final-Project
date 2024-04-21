@@ -1,0 +1,14 @@
+{
+  "username": "string",
+  "password": "string",
+  "checkedOutItems": [
+    {
+      "title": "string",
+      "author": "string",
+      "checkoutDate": "date",
+      "returnDate": "date"
+    }
+  ]
+}
+
+

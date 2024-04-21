@@ -1,18 +1,18 @@
 package ClientSide;
 
 import ServerSide.Item;
+import ServerSide.MongoClientConnection;
+import com.mongodb.client.MongoDatabase;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.bson.Document;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Client extends Application {
 
@@ -20,18 +20,20 @@ public class Client extends Application {
     protected ObjectInputStream fromServer;
     protected PrintWriter toServer;
 
-//    private SceneController controller;
-
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+
+//        MongoDatabase database = new MongoClientConnection().connectDB();
+
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
         Parent root = loader.load();
         SceneController controller = loader.getController();
-        controller.setStage(primaryStage);
+        controller.init(primaryStage);
 
 //        SceneController controller = loader.getController();
 //        loader.setController(controller);

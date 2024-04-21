@@ -27,7 +27,7 @@
   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  THEORY OF LIABILITY,  IN CONTRACT, STRICT LIABILITY, OR TORT
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
@@ -88,7 +88,7 @@
                         </AnchorPane>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="304.0">
                             <children>
-                                <ListView layoutX="13.0" layoutY="40.0" prefHeight="260.0" prefWidth="131.0" />
+                                <ListView fx:id="listView" layoutX="13.0" layoutY="40.0" prefHeight="260.0" prefWidth="131.0" />
                                 <Button fx:id="return_button" layoutX="14.0" layoutY="312.0" mnemonicParsing="false" onAction="#return_clicked" prefHeight="25.0" prefWidth="131.0" text="RETURN">
                                     <font>
                                         <Font name="Calibri Bold" size="12.0" />

@@ -70,8 +70,8 @@
                   <Font name="Calibri Bold" size="12.0" />
                </font>
             </Label>
-            <TextField id="username" layoutX="270.0" layoutY="168.0" />
-            <PasswordField id="password" layoutX="270.0" layoutY="213.0" />
+            <TextField fx:id="username" layoutX="270.0" layoutY="168.0" />
+            <PasswordField fx:id="password" layoutX="270.0" layoutY="213.0" />
             <Line endX="100.0" layoutX="178.0" layoutY="147.0" startX="11.999984741210938" />
             <Line endX="64.33334350585938" layoutX="391.0" layoutY="146.0" startX="-15.666671752929688" />
             <Label layoutX="296.0" layoutY="45.0" prefHeight="46.0" prefWidth="132.0" text="UT ECE" textFill="#ae6f00">
