@@ -27,8 +27,6 @@ public class Server {
         catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "Sam", null, null, new URL("file:images/HP.jpg")));
         // Create a collection for users
 
-//        MongoDatabase database = new MongoClientConnection().connectDB();
-//        database.createCollection("library_members");
 
         new Server().setupNetworking();
     }

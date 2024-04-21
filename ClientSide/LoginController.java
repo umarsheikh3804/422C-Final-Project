@@ -40,7 +40,6 @@ public class LoginController {
 
     @FXML
     public void loginPressed(ActionEvent actionEvent) {
-//        ClientSession session = mongoClient.startSession();
         ClientSession session = mongoClient.startSession();
         session.startTransaction();
 
@@ -59,7 +58,6 @@ public class LoginController {
             controller.displayCart();
             System.out.println(controller.listView == null);
 
-//            session.startTransaction();
             // Insert a user document into the collection
             Document userDocument = new Document()
                     .append("username", username.getText())

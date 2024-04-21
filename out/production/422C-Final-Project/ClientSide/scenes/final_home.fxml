@@ -37,9 +37,9 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TreeTableColumn?>
-<?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -52,12 +52,12 @@
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="343.0" prefWidth="476.0">
                 <ScrollPane layoutX="48.0" layoutY="46.0" prefHeight="260.0" prefWidth="402.0">
                <content>
-                  <TreeTableView fx:id="tableView" prefHeight="246.0" prefWidth="401.0">
+                  <TableView fx:id="tableView" prefHeight="249.0" prefWidth="403.0">
                     <columns>
-                      <TreeTableColumn prefWidth="75.0" text="C1" />
-                      <TreeTableColumn prefWidth="75.0" text="C2" />
+                      <TableColumn prefWidth="75.0" text="C1" />
+                      <TableColumn prefWidth="75.0" text="C2" />
                     </columns>
-                  </TreeTableView>
+                  </TableView>
                </content>
                 </ScrollPane>
 

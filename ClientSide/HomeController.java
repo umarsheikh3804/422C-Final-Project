@@ -19,7 +19,7 @@ import java.util.List;
 
 public class HomeController {
     @FXML
-    public TreeTableView tableView;
+    public TableView tableView;
     public Button checkout_button;
     public Button logout_button1;
     public Button return_button;
@@ -44,6 +44,8 @@ public class HomeController {
         for (Item i : log) {
             listView.getItems().add(i.getTitle());
         }
+
+        displayCatalog();
     }
 
     public void displayCatalog() {
@@ -51,10 +53,10 @@ public class HomeController {
         tableView.getColumns().clear();
 
         // Set the items for the TableView
-//        tableView.setItems(log);
+        tableView.setItems(log);
 
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tableView.setEditable(true);
+//        tableView.setEditable(true);
 
         // Define columns and set cell value factories
         TableColumn<Item, String> itemTypeColumn = new TableColumn<>("Item Type");
@@ -65,6 +67,8 @@ public class HomeController {
 
         TableColumn<Item, String> authorColumn = new TableColumn<>("Author");
         authorColumn.setCellValueFactory(log -> log.getValue().authorProperty());
+
+        tableView.getColumns().addAll(itemTypeColumn, titleColumn, authorColumn);
 
     }
 

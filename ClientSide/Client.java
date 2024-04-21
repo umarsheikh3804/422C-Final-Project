@@ -59,9 +59,6 @@ public class Client extends Application {
                 @Override
                 public void run() {
                     try {
-//                        only really need to read books from server when displaying catalog to user
-//                        or showing user their current checked out books
-//                        while () {
                         ArrayList<Item> catalog = (ArrayList<Item>) (fromServer.readObject());
                             controller.populateCatalog(catalog);
 //                            controller.showCatalog();
