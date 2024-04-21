@@ -1,11 +1,8 @@
 package ClientSide;
 
 import ServerSide.Item;
-import ServerSide.MongoClientConnection;
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -40,12 +37,13 @@ public class SceneController {
     @FXML
     public PasswordField password;
     private Stage stage = new Stage();
-    private final ObservableList<Item> log = FXCollections.observableArrayList();;
+    private final ObservableList<Item> log = FXCollections.observableArrayList();
 
-    private final String connectionString = "mongodb+srv://umarsheikh4804:u1Q6b5NZfcgCICu4@cluster0.w2ijtfr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    private MongoClient mongoClient;
 
-    public void init(Stage primaryStage) {
+    public void init(Stage primaryStage, MongoClient mongoClient) {
         this.stage = primaryStage;
+        this.mongoClient = mongoClient;
     }
 
 
@@ -58,9 +56,8 @@ public class SceneController {
 
     @FXML
     public void loginPressed(ActionEvent actionEvent) {
-        MongoClient mongoClient = MongoClients.create(new MongoClientConnection().connectDB());
          ClientSession session = mongoClient.startSession();
-//        ClientSession session = null;
+
         try {
             MongoDatabase database = mongoClient.getDatabase("Users");
 

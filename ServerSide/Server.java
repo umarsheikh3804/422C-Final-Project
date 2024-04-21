@@ -1,9 +1,5 @@
 package ServerSide;
 
-import com.mongodb.client.MongoDatabase;
-import javafx.scene.image.Image;
-import org.bson.Document;
-
 import java.awt.*;
 import java.io.*;
 import java.net.MalformedURLException;

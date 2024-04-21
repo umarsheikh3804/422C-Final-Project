@@ -2,6 +2,8 @@ package ClientSide;
 
 import ServerSide.Item;
 import ServerSide.MongoClientConnection;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -26,17 +28,12 @@ public class Client extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-
-//        MongoDatabase database = new MongoClientConnection().connectDB();
-
+        MongoClient mongoClient = MongoClients.create(new MongoClientConnection().connectDB());
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
         Parent root = loader.load();
         SceneController controller = loader.getController();
-        controller.init(primaryStage);
-
-//        SceneController controller = loader.getController();
-//        loader.setController(controller);
+        controller.init(primaryStage, mongoClient);
 
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
@@ -97,7 +94,4 @@ public class Client extends Application {
 
     }
 
-    protected void processRequest(String input) {
-        return;
-    }
 }

@@ -19,20 +19,6 @@ public class MongoClientConnection {
                 .serverApi(serverApi)
                 .build();
         return settings;
-        // Create a new client and connect to the server
-//        try (MongoClient mongoClient = MongoClients.create(settings)) {
-//            try {
-////                // Send a ping to confirm a successful connection
-////                MongoDatabase database = mongoClient.getDatabase("Users");
-////                database.runCommand(new Document("ping", 1));
-////                return database;
-////                System.out.println("Pinged your deployment. You successfully connected to MongoDB!");
-//
-//            } catch (MongoException e) {
-//                e.printStackTrace();
-//            }
-//
-//            return null;
-//        }
+
     }
 }
