@@ -26,13 +26,15 @@ public class HomeController {
     @FXML
     public ListView listView;
     public Button logout_button;
-    private Stage stage = new Stage();
+    private Stage stage;
     private ObservableList<Item> log;
     private MongoClient mongoClient;
+    private ClientSession session;
 
-    public void init(Stage primaryStage, MongoClient mongoClient, ObservableList<Item> log) {
+    public void init(Stage primaryStage, MongoClient mongoClient, ClientSession session, ObservableList<Item> log) {
         this.stage = primaryStage;
         this.mongoClient = mongoClient;
+        this.session = session;
         this.log = log;
         this.listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
@@ -79,11 +81,17 @@ public class HomeController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
             Parent root = loader.load();
+            LoginController controller = loader.getController();
+            controller.init(stage, mongoClient);
 
 //          for some reason stage is null here, what do I do?
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
-        } catch (Exception e) {e.printStackTrace();};
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
     }
 }

@@ -2,6 +2,7 @@ package ClientSide;
 
 import ServerSide.Item;
 import ServerSide.MongoClientConnection;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import javafx.application.Application;
@@ -29,7 +30,6 @@ public class Client extends Application {
         MongoClient mongoClient = MongoClients.create(new MongoClientConnection().connectDB());
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
-//        loader.setCache(false);
         Parent root = loader.load();
         LoginController controller = loader.getController();
 //        at this point obviously the list view and tree elements will be null, the fxml is not even loaded and linked

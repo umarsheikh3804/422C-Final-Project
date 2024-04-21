@@ -25,7 +25,7 @@ public class LoginController {
     public TextField username;
     @FXML
     public PasswordField password;
-    private Stage stage = new Stage();
+    private Stage stage;
     private final ObservableList<Item> log = FXCollections.observableArrayList();
     private MongoClient mongoClient;
 
@@ -40,7 +40,9 @@ public class LoginController {
 
     @FXML
     public void loginPressed(ActionEvent actionEvent) {
+//        ClientSession session = mongoClient.startSession();
         ClientSession session = mongoClient.startSession();
+        session.startTransaction();
 
         try {
             MongoDatabase database = mongoClient.getDatabase("Users");
@@ -48,7 +50,7 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
             Parent root = loader.load();
             HomeController controller = loader.getController();
-            controller.init(stage, mongoClient, log);
+            controller.init(stage, mongoClient, session, log);
 
             Scene scene = new Scene(root);
             stage.setScene(scene);
@@ -57,7 +59,7 @@ public class LoginController {
             controller.displayCart();
             System.out.println(controller.listView == null);
 
-            session.startTransaction();
+//            session.startTransaction();
             // Insert a user document into the collection
             Document userDocument = new Document()
                     .append("username", username.getText())
@@ -70,9 +72,6 @@ public class LoginController {
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            session.close();
-            mongoClient.close();
         }
     }
 
