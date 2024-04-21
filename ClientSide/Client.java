@@ -4,13 +4,11 @@ import ServerSide.Item;
 import ServerSide.MongoClientConnection;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.bson.Document;
 
 import java.io.*;
 import java.net.Socket;
@@ -18,7 +16,7 @@ import java.util.ArrayList;
 
 public class Client extends Application {
 
-    private static String host = "11.20.0.187";
+    private static String host = "11.20.0.188";
     protected ObjectInputStream fromServer;
     protected PrintWriter toServer;
 
@@ -31,8 +29,10 @@ public class Client extends Application {
         MongoClient mongoClient = MongoClients.create(new MongoClientConnection().connectDB());
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
+//        loader.setCache(false);
         Parent root = loader.load();
-        SceneController controller = loader.getController();
+        LoginController controller = loader.getController();
+//        at this point obviously the list view and tree elements will be null, the fxml is not even loaded and linked
         controller.init(primaryStage, mongoClient);
 
         Scene scene = new Scene(root);
@@ -47,7 +47,7 @@ public class Client extends Application {
 
     }
 
-    private void setupNetworking(SceneController controller) {
+    private void setupNetworking(LoginController controller) {
         try {
             Socket socket = new Socket(host, 1056);
             System.out.println("Network established");

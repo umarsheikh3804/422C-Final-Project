@@ -1,0 +1,89 @@
+package ClientSide;
+
+import ServerSide.Item;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+import org.bson.Document;
+
+import java.util.List;
+
+public class HomeController {
+    @FXML
+    public TreeTableView tableView;
+    public Button checkout_button;
+    public Button logout_button1;
+    public Button return_button;
+    @FXML
+    public ListView listView;
+    public Button logout_button;
+    private Stage stage = new Stage();
+    private ObservableList<Item> log;
+    private MongoClient mongoClient;
+
+    public void init(Stage primaryStage, MongoClient mongoClient, ObservableList<Item> log) {
+        this.stage = primaryStage;
+        this.mongoClient = mongoClient;
+        this.log = log;
+        this.listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    }
+
+    public void displayCart() {
+        listView.getItems().clear();
+        for (Item i : log) {
+            listView.getItems().add(i.getTitle());
+        }
+    }
+
+    public void displayCatalog() {
+        System.out.println(tableView == null);
+        tableView.getColumns().clear();
+
+        // Set the items for the TableView
+//        tableView.setItems(log);
+
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableView.setEditable(true);
+
+        // Define columns and set cell value factories
+        TableColumn<Item, String> itemTypeColumn = new TableColumn<>("Item Type");
+        itemTypeColumn.setCellValueFactory(log -> log.getValue().itemTypeProperty());
+
+        TableColumn<Item, String> titleColumn = new TableColumn<>("Title");
+        titleColumn.setCellValueFactory(log -> log.getValue().titleProperty());
+
+        TableColumn<Item, String> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(log -> log.getValue().authorProperty());
+
+    }
+
+    public void checkout_clicked(ActionEvent actionEvent) {
+    }
+
+    public void return_clicked(ActionEvent actionEvent) {
+
+    }
+
+    @FXML
+    public void logout_clicked(ActionEvent actionEvent) {
+        System.out.println("logout clicked");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
+            Parent root = loader.load();
+
+//          for some reason stage is null here, what do I do?
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {e.printStackTrace();};
+    }
+}
