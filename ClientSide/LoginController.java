@@ -26,7 +26,7 @@ public class LoginController {
     @FXML
     public PasswordField password;
     private Stage stage;
-    private final ObservableList<Item> log = FXCollections.observableArrayList();
+    private static ObservableList<Item> log = FXCollections.observableArrayList();
     private MongoClient mongoClient;
 
     public void init(Stage primaryStage, MongoClient mongoClient) {
@@ -50,12 +50,12 @@ public class LoginController {
             Parent root = loader.load();
             HomeController controller = loader.getController();
             controller.init(stage, mongoClient, session, log);
+            controller.displayClientSide();
 
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
 
-            controller.displayCart();
             System.out.println(controller.listView == null);
 
             // Insert a user document into the collection

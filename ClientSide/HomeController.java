@@ -16,11 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import org.bson.Document;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 public class HomeController {
     @FXML
@@ -44,28 +39,18 @@ public class HomeController {
         this.listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
-    public void displayCart() {
+    public void displayClientSide() {
         listView.getItems().clear();
         for (Item i : log) {
             listView.getItems().add(i.getTitle());
         }
 
-        displayCatalog();
-    }
-
-    public void displayCatalog() {
-        System.out.println(tableView == null);
         tableView.getColumns().clear();
 
         // Set the items for the TableView
         tableView.setItems(log);
 
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-//        tableView.setEditable(true);
-
-        // Define columns and set cell value factories
-//        TableColumn<Item, String> itemTypeColumn = new TableColumn<>("Item Type");
-//        itemTypeColumn.setCellValueFactory(log -> log.getValue().itemTypeProperty());
 
         TableColumn<Item, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(log -> log.getValue().titleProperty());
