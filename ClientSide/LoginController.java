@@ -15,6 +15,9 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.bson.Document;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LoginController {
@@ -29,9 +32,15 @@ public class LoginController {
     private static ObservableList<Item> log = FXCollections.observableArrayList();
     private MongoClient mongoClient;
 
-    public void init(Stage primaryStage, MongoClient mongoClient) {
+    private ObjectOutputStream toServer;
+    private ObjectInputStream fromServer;
+
+    public void init(Stage primaryStage, MongoClient mongoClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
         this.mongoClient = mongoClient;
+        this.toServer = toServer;
+//        System.out.println(toServer == null);
+        this.fromServer = fromServer;
     }
 
     public void populateCatalog(List<Item> items) {
@@ -49,14 +58,14 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
             Parent root = loader.load();
             HomeController controller = loader.getController();
-            controller.init(stage, mongoClient, session, log);
+            System.out.println(toServer == null);
+            controller.init(stage, mongoClient, session, log, toServer, fromServer);
             controller.displayClientSide();
 
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
 
-            System.out.println(controller.listView == null);
 
             // Insert a user document into the collection
             Document userDocument = new Document()

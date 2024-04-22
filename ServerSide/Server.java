@@ -1,5 +1,8 @@
 package ServerSide;
 
+import com.mongodb.client.model.InsertOneModel;
+import javafx.collections.ObservableList;
+
 import java.awt.*;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -8,6 +11,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 import java.util.Scanner;
 
 public class Server {
@@ -38,33 +42,55 @@ public class Server {
             while (true) {
                 Socket clientSocket = server.accept();
                 System.out.println("incoming transmission");
-
-                Thread t = new Thread(new ClientHandler(clientSocket));
+//                Thread getChecked = new Thread(new );
+                Thread t = new Thread(new ClientOutput(clientSocket));
+                Thread s = new Thread(new IncomingReader(clientSocket));
                 t.start();
+                s.start();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    class ClientHandler implements Runnable {
+    class ClientOutput implements Runnable {
 
         private Socket clientSocket;
-        ClientHandler(Socket clientSocket) {
+        ClientOutput(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
 
         public void run() {
             try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
                 oos.reset();
                 oos.writeObject(catalog);
+                oos.flush();
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
+
+    class IncomingReader implements Runnable {
+        private Socket clientSocket;
+        IncomingReader(Socket clientSocket) {
+            this.clientSocket = clientSocket;
+        }
+
+        public void run() {
+            try {
+                Item[] selected = (Item[]) (new ObjectInputStream(clientSocket.getInputStream()).readObject());
+                for (Item s : selected) {
+                    System.out.println(s.getTitle());
+                }
+
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
 
 }

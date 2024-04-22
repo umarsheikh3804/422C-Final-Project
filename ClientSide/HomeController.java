@@ -17,6 +17,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.util.List;
+
 public class HomeController {
     @FXML
     public TableView tableView;
@@ -31,12 +37,19 @@ public class HomeController {
     private MongoClient mongoClient;
     private ClientSession session;
 
-    public void init(Stage primaryStage, MongoClient mongoClient, ClientSession session, ObservableList<Item> log) {
+    private ObjectOutputStream toServer;
+    private ObjectInputStream fromServer;
+
+    public void init(Stage primaryStage, MongoClient mongoClient, ClientSession session, ObservableList<Item> log, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
         this.mongoClient = mongoClient;
         this.session = session;
         this.log = log;
         this.listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        this.tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        this.fromServer = fromServer;
+        this.toServer = toServer;
+        System.out.println(toServer == null);
     }
 
     public void displayClientSide() {
@@ -67,11 +80,19 @@ public class HomeController {
 
     }
 
-    public void checkout_clicked(ActionEvent actionEvent) {
+    @FXML
+    public void checkout_clicked(ActionEvent actionEvent) throws IOException {
+        ObservableList<Item> selected = tableView.getSelectionModel().getSelectedItems();
+        System.out.println(toServer == null);
+        toServer.writeObject(selected.toArray());
+        toServer.flush();
     }
 
     public void return_clicked(ActionEvent actionEvent) {
-
+        ObservableList<String> selected = listView.getSelectionModel().getSelectedItems();
+        for (String s : selected) {
+            System.out.println(s);
+        }
     }
 
     @FXML
@@ -81,9 +102,8 @@ public class HomeController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
             Parent root = loader.load();
             LoginController controller = loader.getController();
-            controller.init(stage, mongoClient);
+            controller.init(stage, mongoClient, toServer, fromServer);
 
-//          for some reason stage is null here, what do I do?
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
