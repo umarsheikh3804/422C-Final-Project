@@ -73,28 +73,9 @@ public class HomeController {
         TableColumn<Item, String> authorColumn = new TableColumn<>("Author");
         authorColumn.setCellValueFactory(log -> log.getValue().authorProperty());
 
-        TableColumn<Item, Image> imageColumn = new TableColumn<>("Image");
+        TableColumn<Item, ImageView> imageColumn = new TableColumn<>("Image");
         imageColumn.setCellValueFactory(log -> {
             return log.getValue().imageProperty(); // Assuming you have a method to get the image
-        });
-
-        imageColumn.setCellFactory(column -> {
-            return new TableCell<Item, Image>() {
-                private final ImageView imageView = new ImageView();
-
-                protected void updateItem(Image item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setGraphic(null);
-                    } else {
-                        imageView.setImage(item);
-                        imageView.setFitWidth(100); // Set the width of the image
-                        imageView.setFitHeight(100);
-                        imageView.setPreserveRatio(true);
-                        setGraphic(imageView);
-                    }
-                }
-            };
         });
 
         tableView.getColumns().addAll(titleColumn, authorColumn, imageColumn);

@@ -47,8 +47,18 @@ public class Item implements Serializable {
         return new SimpleStringProperty(this.author);
     }
 
-    public ObservableValue<Image> imageProperty() {
-        return new SimpleObjectProperty<>(new Image(this.image));
+    public ObservableValue<ImageView> imageProperty() {
+
+        try {
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(100);
+            imageView.setFitWidth(200/3.0);
+            return new SimpleObjectProperty<>(imageView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
     }
 
     public String getTitle() {return this.title;}
