@@ -1,8 +1,5 @@
 package ServerSide;
 
-import com.mongodb.client.model.InsertOneModel;
-import javafx.collections.ObservableList;
-
 import java.awt.*;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -11,8 +8,6 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Scanner;
 
 public class Server {
 
@@ -78,16 +73,23 @@ public class Server {
         }
 
         public void run() {
-            System.out.println("gets to reader run");
+//            System.out.println("gets to reader run");
             try {
-                System.out.println("before read");
-//                Book book = (Book)(new ObjectInputStream(clientSocket.getInputStream()).readObject());
-                ArrayList<Item> selected = (ArrayList<Item>) (new ObjectInputStream(clientSocket.getInputStream()).readObject());
-                System.out.println("after read");
-                for (Item s : selected) {
-                    System.out.println(s.getTitle());
+                ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
+                while (true) {
+                    Request selected = (Request) (ois.readObject());
+
+                    if (selected.getType().equals("checkout")) {
+                        for (Object s : selected.getList()) {
+                            System.out.println(((Item) (s)).getTitle());
+                        }
+                    } else {
+                        System.out.println("gets to return handler");
+                        for (Object s : selected.getList()) {
+                            System.out.println((String) (s));
+                        }
+                    }
                 }
-                System.out.println("got updates");
 
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();

@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.List;
 
 public class Item implements Serializable {
-    private Description description;
     private String current;
     private List<String> previous;
     private Date lastCheckout;

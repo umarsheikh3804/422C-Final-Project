@@ -1,6 +1,7 @@
 package ClientSide;
 
 import ServerSide.Item;
+import ServerSide.Request;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
@@ -51,7 +52,7 @@ public class HomeController {
         this.tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.fromServer = fromServer;
         this.toServer = toServer;
-        System.out.println(toServer == null);
+//        System.out.println(toServer == null);
     }
 
     public void displayClientSide() {
@@ -85,24 +86,24 @@ public class HomeController {
     @FXML
     public void checkout_clicked(ActionEvent actionEvent) throws IOException {
         ObservableList<Item> selected = tableView.getSelectionModel().getSelectedItems();
-        System.out.println(toServer == null);
-//        System.out.println(Arrays.toString(selected.toArray()));
-        List<Item> toSend = new ArrayList<>();
-        for (Item i : selected) {
-            toSend.add(i);
-        }
+//        System.out.println(toServer == null);
+        ArrayList<Item> toSend = new ArrayList<>(selected);
         System.out.println(Arrays.toString(toSend.toArray()));
         toServer.reset();
 
-        toServer.writeObject(toSend);
+        toServer.writeObject(new Request<Item>(toSend, "checkout"));
         toServer.flush();
     }
 
-    public void return_clicked(ActionEvent actionEvent) {
+    public void return_clicked(ActionEvent actionEvent) throws IOException {
         ObservableList<String> selected = listView.getSelectionModel().getSelectedItems();
-        for (String s : selected) {
-            System.out.println(s);
-        }
+//        System.out.println(toServer == null);
+        ArrayList<String> toSend = new ArrayList<>(selected);
+        System.out.println(Arrays.toString(toSend.toArray()));
+        toServer.reset();
+
+        toServer.writeObject(new Request<String>(toSend, "return"));
+        toServer.flush();
     }
 
     @FXML
