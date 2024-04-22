@@ -17,7 +17,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class Client extends Application {
 
-    private static String host = "10.145.61.2";
+    private static String host = "11.20.0.130";
     private ObjectInputStream fromServer;
     private ObjectOutputStream toServer;
 

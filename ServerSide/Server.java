@@ -26,7 +26,6 @@ public class Server {
 //        }
 
         catalog.add(new Item("Book", "The Road", "Cormac McCarthy", 200, "", "Billy", null, null, "ServerSide/images/TR.jpg"));
-//        catalog.add(new Item(new Description("Book", "The Great Gatsby", "", 200, ""), "Bob", null, null, null));
         catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "Joe", null, null, "ServerSide/images/CR.jpg"));
         catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "Sam", null, null, "ServerSide/images/HP.jpg"));
         // Create a collection for users
@@ -42,21 +41,20 @@ public class Server {
             while (true) {
                 Socket clientSocket = server.accept();
                 System.out.println("incoming transmission");
-//                Thread getChecked = new Thread(new );
-                Thread t = new Thread(new ClientOutput(clientSocket));
-                Thread s = new Thread(new IncomingReader(clientSocket));
-                t.start();
-                s.start();
+                Thread sender = new Thread(new ClientSender(clientSocket));
+                Thread reader = new Thread(new ClientReader(clientSocket));
+                sender.start();
+                reader.start();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    class ClientOutput implements Runnable {
+    class ClientSender implements Runnable {
 
         private Socket clientSocket;
-        ClientOutput(Socket clientSocket) {
+        ClientSender(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
 
@@ -73,21 +71,26 @@ public class Server {
         }
     }
 
-    class IncomingReader implements Runnable {
+    class ClientReader implements Runnable {
         private Socket clientSocket;
-        IncomingReader(Socket clientSocket) {
+        ClientReader(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
 
         public void run() {
+            System.out.println("gets to reader run");
             try {
-                Item[] selected = (Item[]) (new ObjectInputStream(clientSocket.getInputStream()).readObject());
+                System.out.println("before read");
+//                Book book = (Book)(new ObjectInputStream(clientSocket.getInputStream()).readObject());
+                ArrayList<Item> selected = (ArrayList<Item>) (new ObjectInputStream(clientSocket.getInputStream()).readObject());
+                System.out.println("after read");
                 for (Item s : selected) {
                     System.out.println(s.getTitle());
                 }
+                System.out.println("got updates");
 
             } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
     }

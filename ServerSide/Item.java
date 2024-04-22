@@ -26,10 +26,10 @@ public class Item implements Serializable {
 
 
 
-//    @Override
-//    public String toString() {
-//        return "[" + itemType + ": " + title + ", " + author + ", " + pages + "]";
-//    }
+    @Override
+    public String toString() {
+        return "[" + itemType + ": " + title + ", " + author + ", " + pages + "]";
+    }
 
 
     public String getItemType() {return this.itemType;

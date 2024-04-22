@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HomeController {
@@ -84,7 +86,15 @@ public class HomeController {
     public void checkout_clicked(ActionEvent actionEvent) throws IOException {
         ObservableList<Item> selected = tableView.getSelectionModel().getSelectedItems();
         System.out.println(toServer == null);
-        toServer.writeObject(selected.toArray());
+//        System.out.println(Arrays.toString(selected.toArray()));
+        List<Item> toSend = new ArrayList<>();
+        for (Item i : selected) {
+            toSend.add(i);
+        }
+        System.out.println(Arrays.toString(toSend.toArray()));
+        toServer.reset();
+
+        toServer.writeObject(toSend);
         toServer.flush();
     }
 
