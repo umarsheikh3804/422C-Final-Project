@@ -1,6 +1,7 @@
 {
   "username": "string",
   "password": "string",
+
   "checkedOutItems": [
     {
       "title": "string",

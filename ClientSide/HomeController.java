@@ -4,6 +4,7 @@ import ServerSide.Item;
 import ServerSide.Request;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,17 +12,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class HomeController {
     @FXML
@@ -34,6 +32,7 @@ public class HomeController {
     public Button logout_button;
     private Stage stage;
     private ObservableList<Item> log;
+    private ObservableList<Item> cart = FXCollections.observableArrayList();;
     private MongoClient mongoClient;
     private ClientSession session;
 
@@ -53,10 +52,13 @@ public class HomeController {
     }
 
     public void displayClientSide() {
+
+//        actually need to pull
         listView.getItems().clear();
-        for (Item i : log) {
-            listView.getItems().add(i.getTitle());
-        }
+        listView.setItems(cart);
+//        for (Item i : log) {
+//            listView.getItems().add(i);
+//        }
 
         tableView.getColumns().clear();
 
@@ -92,24 +94,31 @@ public class HomeController {
         toServer.flush();
 
         for (Item i : selected) {
-            listView.getItems().add(i.getTitle());
+            cart.add(i);
         }
     }
 
     public void return_clicked(ActionEvent actionEvent) throws IOException {
-        ObservableList<String> selected = listView.getSelectionModel().getSelectedItems();
+        ObservableList<Item> selected = listView.getSelectionModel().getSelectedItems();
+//        System.out.println(insta);
 //        System.out.println(toServer == null);
-        ArrayList<String> toSend = new ArrayList<>(selected);
-        System.out.println(Arrays.toString(toSend.toArray()));
+        ArrayList<Item> toSend = new ArrayList<>(selected);
+//        System.out.println(Arrays.toString(toSend.toArray()));
         toServer.reset();
 
-        toServer.writeObject(new Request<String>(toSend, "return"));
+        toServer.writeObject(new Request<Item>(toSend, "return"));
         toServer.flush();
 
-        for (String s : selected) {
+        for (Item s : selected) {
             listView.getItems().remove(s);
         }
     }
+
+//    private ArrayList<Item> toItems(ObservableList<Item> selected) {
+//        for (String s : selected) {
+//
+//        }
+//    }
 
     @FXML
     public void logout_clicked(ActionEvent actionEvent) {

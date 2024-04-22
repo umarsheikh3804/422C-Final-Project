@@ -54,6 +54,7 @@ public class Server {
             this.clientSocket = clientSocket;
         }
 
+
         public void run() {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -89,7 +90,7 @@ public class Server {
                             synchronized (lock1) {
                                 Item borrowItem = (Item) (s);
                                 catalog.remove(forTitle(borrowItem.getTitle()));
-                                System.out.println(borrowItem.getTitle());
+                                System.out.println(borrowItem);
                             }
                         }
                     }
@@ -98,12 +99,19 @@ public class Server {
 //                        System.out.println("gets to return handler");
                         for (Object s : selected.getList()) {
                             synchronized (lock2) {
-                                Item returnItem = forTitle((String) (s));
-                                catalog.remove(returnItem);
-                                System.out.println(returnItem.getTitle());
+//                                need to work with items, not strings, otherwise I can't add returned books
+//                                back to the collection
+//                                Item returnItem = forTitle((String) (s));
+                                System.out.println(s instanceof String);
+                                Item returnItem = (Item) (s);
+                                catalog.add(returnItem);
+//                                have to ensure that returnItem itself is not null
+                                System.out.println(returnItem);
                             }
                         }
                     }
+
+//                    now need to update catalog for all clients
 
                     System.out.println(Arrays.toString(catalog.toArray()));
 
