@@ -53,10 +53,10 @@
                 <ScrollPane layoutX="48.0" layoutY="46.0" prefHeight="260.0" prefWidth="402.0">
                <content>
                   <TableView fx:id="tableView" prefHeight="249.0" prefWidth="403.0">
-                    <columns>
-                      <TableColumn prefWidth="75.0" text="C1" />
-                      <TableColumn prefWidth="75.0" text="C2" />
-                    </columns>
+<!--                    <columns>-->
+<!--                      <TableColumn prefWidth="75.0" text="C1" />-->
+<!--                      <TableColumn prefWidth="75.0" text="C2" />-->
+<!--                    </columns>-->
                   </TableView>
                </content>
                 </ScrollPane>

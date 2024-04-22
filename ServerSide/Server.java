@@ -21,10 +21,10 @@ public class Server {
 //            catalog.add(new Item(arr[0], arr[1], arr[2], arr[3]))
 //        }
 
-        catalog.add(new Item("Book", "The Road", "Cormac McCarthy", 200, "", "Billy", null, null, new URL("file:images/TR.jpg")));
+        catalog.add(new Item("Book", "The Road", "Cormac McCarthy", 200, "", "Billy", null, null, "file:images/TR.jpg"));
 //        catalog.add(new Item(new Description("Book", "The Great Gatsby", "", 200, ""), "Bob", null, null, null));
-        catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "Joe", null, null, new URL("file:images/CR.jpg")));
-        catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "Sam", null, null, new URL("file:images/HP.jpg")));
+        catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "Joe", null, null, "file:images/CR.jpg"));
+        catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "Sam", null, null, "file:images/HP.jpg"));
         // Create a collection for users
 
 

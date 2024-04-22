@@ -4,6 +4,7 @@ import ServerSide.Item;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,9 +13,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import org.bson.Document;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 public class HomeController {
@@ -59,8 +64,8 @@ public class HomeController {
 //        tableView.setEditable(true);
 
         // Define columns and set cell value factories
-        TableColumn<Item, String> itemTypeColumn = new TableColumn<>("Item Type");
-        itemTypeColumn.setCellValueFactory(log -> log.getValue().itemTypeProperty());
+//        TableColumn<Item, String> itemTypeColumn = new TableColumn<>("Item Type");
+//        itemTypeColumn.setCellValueFactory(log -> log.getValue().itemTypeProperty());
 
         TableColumn<Item, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(log -> log.getValue().titleProperty());
@@ -68,7 +73,31 @@ public class HomeController {
         TableColumn<Item, String> authorColumn = new TableColumn<>("Author");
         authorColumn.setCellValueFactory(log -> log.getValue().authorProperty());
 
-        tableView.getColumns().addAll(itemTypeColumn, titleColumn, authorColumn);
+        TableColumn<Item, Image> imageColumn = new TableColumn<>("Image");
+        imageColumn.setCellValueFactory(log -> {
+            return log.getValue().imageProperty(); // Assuming you have a method to get the image
+        });
+
+        imageColumn.setCellFactory(column -> {
+            return new TableCell<Item, Image>() {
+                private final ImageView imageView = new ImageView();
+
+                protected void updateItem(Image item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setGraphic(null);
+                    } else {
+                        imageView.setImage(item);
+                        imageView.setFitWidth(100); // Set the width of the image
+                        imageView.setFitHeight(100);
+                        imageView.setPreserveRatio(true);
+                        setGraphic(imageView);
+                    }
+                }
+            };
+        });
+
+        tableView.getColumns().addAll(titleColumn, authorColumn, imageColumn);
 
     }
 
