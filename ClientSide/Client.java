@@ -40,7 +40,7 @@ public class Client extends Application {
         Parent root = loader.load();
         LoginController controller = loader.getController();
 //        at this point obviously the list view and tree elements will be null, the fxml is not even loaded and linked
-        System.out.println((toServer == null) + " before passing to controller");
+//        System.out.println((toServer == null) + " before passing to controller");
         controller.init(primaryStage, mongoClient, toServer, fromServer);
         controller.populateCatalog(catalogHolder[0]);
         Scene scene = new Scene(root);

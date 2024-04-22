@@ -1,17 +1,18 @@
 package ServerSide;
 
-import java.awt.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Server {
 
     private static List<Item> catalog = new ArrayList<Item>();
+    private final Object lock1 = new Object();
+    private final Object lock2 = new Object();
     public static void main(String[] args) throws MalformedURLException, FileNotFoundException {
 //        Scanner fs = new Scanner(new File("input.txt"));
 //        while (fs.hasNextLine()) {
@@ -68,6 +69,7 @@ public class Server {
 
     class ClientReader implements Runnable {
         private Socket clientSocket;
+
         ClientReader(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
@@ -75,26 +77,50 @@ public class Server {
         public void run() {
 //            System.out.println("gets to reader run");
             try {
+//                need to implement backend server logic to update catalog based on items checked out and borrowed
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
                 while (true) {
                     Request selected = (Request) (ois.readObject());
 
+//                    technically speaking a user can't check out and borrow at the same time, but I have added 2
+//                    locks nonetheless
                     if (selected.getType().equals("checkout")) {
                         for (Object s : selected.getList()) {
-                            System.out.println(((Item) (s)).getTitle());
-                        }
-                    } else {
-                        System.out.println("gets to return handler");
-                        for (Object s : selected.getList()) {
-                            System.out.println((String) (s));
+                            synchronized (lock1) {
+                                Item borrowItem = (Item) (s);
+                                catalog.remove(forTitle(borrowItem.getTitle()));
+                                System.out.println(borrowItem.getTitle());
+                            }
                         }
                     }
-                }
 
-            } catch (IOException | ClassNotFoundException e) {
+                    if (selected.getType().equals("return")) {
+//                        System.out.println("gets to return handler");
+                        for (Object s : selected.getList()) {
+                            synchronized (lock2) {
+                                Item returnItem = forTitle((String) (s));
+                                catalog.remove(returnItem);
+                                System.out.println(returnItem.getTitle());
+                            }
+                        }
+                    }
+
+                    System.out.println(Arrays.toString(catalog.toArray()));
+
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private Item forTitle(String s) {
+        for (Item i : catalog) {
+            if (i.getTitle().equals(s)) {
+                return i;
+            }
+        }
+        return null;
     }
 
 

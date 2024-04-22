@@ -4,9 +4,6 @@ import ServerSide.Item;
 import ServerSide.Request;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -93,6 +90,10 @@ public class HomeController {
 
         toServer.writeObject(new Request<Item>(toSend, "checkout"));
         toServer.flush();
+
+        for (Item i : selected) {
+            listView.getItems().add(i.getTitle());
+        }
     }
 
     public void return_clicked(ActionEvent actionEvent) throws IOException {
@@ -104,6 +105,10 @@ public class HomeController {
 
         toServer.writeObject(new Request<String>(toSend, "return"));
         toServer.flush();
+
+        for (String s : selected) {
+            listView.getItems().remove(s);
+        }
     }
 
     @FXML
