@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class Client extends Application {
 
-    private static String host = "11.20.0.130";
+    private static String host = "11.20.0.186";
     private ObjectInputStream fromServer;
     private ObjectOutputStream toServer;
 

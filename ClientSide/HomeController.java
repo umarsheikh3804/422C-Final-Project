@@ -56,9 +56,6 @@ public class HomeController {
 //        actually need to pull
         listView.getItems().clear();
         listView.setItems(cart);
-//        for (Item i : log) {
-//            listView.getItems().add(i);
-//        }
 
         tableView.getColumns().clear();
 
@@ -85,13 +82,38 @@ public class HomeController {
     @FXML
     public void checkout_clicked(ActionEvent actionEvent) throws IOException {
         ObservableList<Item> selected = tableView.getSelectionModel().getSelectedItems();
-//        System.out.println(toServer == null);
+
         ArrayList<Item> toSend = new ArrayList<>(selected);
-        System.out.println(Arrays.toString(toSend.toArray()));
+//        System.out.println(Arrays.toString(toSend.toArray()));
         toServer.reset();
 
         toServer.writeObject(new Request<Item>(toSend, "checkout"));
         toServer.flush();
+
+
+        Thread readerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("gets here");
+//                        loaded catalog/updated catalog sent from server
+                    ArrayList<Item> catalog = (ArrayList<Item>) (fromServer.readObject());
+                    System.out.println(Arrays.toString(catalog.toArray()));
+                    log.clear();
+//                    should dynamically update because it is an observeable list
+                    log.addAll(catalog);
+//                    System.out.println(Arrays.toString(log.toArray()));
+//                    displayClientSide();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("Populated catalog");
+
+                }
+            }
+        });
+
+        readerThread.start();
 
         for (Item i : selected) {
             cart.add(i);
@@ -100,25 +122,22 @@ public class HomeController {
 
     public void return_clicked(ActionEvent actionEvent) throws IOException {
         ObservableList<Item> selected = listView.getSelectionModel().getSelectedItems();
-//        System.out.println(insta);
-//        System.out.println(toServer == null);
         ArrayList<Item> toSend = new ArrayList<>(selected);
-//        System.out.println(Arrays.toString(toSend.toArray()));
         toServer.reset();
 
         toServer.writeObject(new Request<Item>(toSend, "return"));
         toServer.flush();
 
+//        need some way to ensure that server has updated catalog and sent it back, otherwise will have some issue reading input
+
         for (Item s : selected) {
-            listView.getItems().remove(s);
+            cart.remove(s);
         }
     }
 
-//    private ArrayList<Item> toItems(ObservableList<Item> selected) {
-//        for (String s : selected) {
-//
-//        }
-//    }
+
+
+
 
     @FXML
     public void logout_clicked(ActionEvent actionEvent) {

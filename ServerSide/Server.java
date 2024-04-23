@@ -1,18 +1,18 @@
 package ServerSide;
-
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Server {
 
     private static List<Item> catalog = new ArrayList<Item>();
     private final Object lock1 = new Object();
     private final Object lock2 = new Object();
+    Map<Socket, ObjectOutputStream> sockets = new HashMap<>();
+//    private boolean sendCatalog;
+
     public static void main(String[] args) throws MalformedURLException, FileNotFoundException {
 //        Scanner fs = new Scanner(new File("input.txt"));
 //        while (fs.hasNextLine()) {
@@ -36,9 +36,13 @@ public class Server {
             ServerSocket server = new ServerSocket(1056);
             while (true) {
                 Socket clientSocket = server.accept();
+//                don't want to use multiple outputstreams for same socket
+                sockets.put(clientSocket, new ObjectOutputStream(clientSocket.getOutputStream()));
                 System.out.println("incoming transmission");
-                Thread sender = new Thread(new ClientSender(clientSocket));
+                Thread sender = new Thread(new ClientSender());
                 Thread reader = new Thread(new ClientReader(clientSocket));
+//                sendCatalog = true;
+//                sender.start();
                 sender.start();
                 reader.start();
             }
@@ -49,18 +53,25 @@ public class Server {
 
     class ClientSender implements Runnable {
 
-        private Socket clientSocket;
-        ClientSender(Socket clientSocket) {
-            this.clientSocket = clientSocket;
-        }
+//        private Socket clientSocket;
+//        ClientSender(Socket clientSocket) {
+//            this.clientSocket = clientSocket;
+//        }
 
 
         public void run() {
             try {
-                ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
-                oos.reset();
-                oos.writeObject(catalog);
-                oos.flush();
+                for (Socket s : sockets.keySet()) {
+//                            maybe initialize ios an oos once
+//                            System.out.println("gets here");
+                    ObjectOutputStream oos = sockets.get(s);
+                    oos.reset();
+                    oos.writeObject(catalog);
+                    oos.flush();
+//                            print statement to check if it sends to client
+                    System.out.println("sending updated catalog back to client");
+
+                }
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -90,30 +101,25 @@ public class Server {
                             synchronized (lock1) {
                                 Item borrowItem = (Item) (s);
                                 catalog.remove(forTitle(borrowItem.getTitle()));
-                                System.out.println(borrowItem);
+//                                System.out.println(borrowItem);
                             }
                         }
                     }
 
                     if (selected.getType().equals("return")) {
-//                        System.out.println("gets to return handler");
                         for (Object s : selected.getList()) {
                             synchronized (lock2) {
-//                                need to work with items, not strings, otherwise I can't add returned books
-//                                back to the collection
-//                                Item returnItem = forTitle((String) (s));
-                                System.out.println(s instanceof String);
                                 Item returnItem = (Item) (s);
                                 catalog.add(returnItem);
-//                                have to ensure that returnItem itself is not null
-                                System.out.println(returnItem);
                             }
                         }
                     }
 
-//                    now need to update catalog for all clients
+                    System.out.println("updated catalog should be: " + catalog.toString());
 
-                    System.out.println(Arrays.toString(catalog.toArray()));
+                    Thread sender = new Thread(new ClientSender());
+                    sender.start();
+
 
                 }
             } catch (Exception e) {
@@ -130,6 +136,5 @@ public class Server {
         }
         return null;
     }
-
 
 }
