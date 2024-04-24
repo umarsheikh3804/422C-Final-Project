@@ -1,5 +1,6 @@
 package ServerSide;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -39,7 +40,7 @@ public class Server {
 //                don't want to use multiple outputstreams for same socket
                 sockets.put(clientSocket, new ObjectOutputStream(clientSocket.getOutputStream()));
                 System.out.println("incoming transmission");
-                Thread sender = new Thread(new ClientSender());
+                Thread sender = new Thread(new ClientSender(null, null));
                 Thread reader = new Thread(new ClientReader(clientSocket));
 
                 sender.start();
@@ -52,6 +53,13 @@ public class Server {
 
     class ClientSender implements Runnable {
 
+        private String response;
+        private ArrayList<Item> updatedCart;
+        ClientSender(String response, ArrayList<Item> updatedCart) {
+            this.response = response;
+            this.updatedCart = updatedCart;
+
+        }
         public void run() {
             try {
 //                we may need to put a lock here since you don't want to send the 2 different catalogs to the same client
@@ -59,7 +67,7 @@ public class Server {
                     for (Socket s : sockets.keySet()) {
                         ObjectOutputStream oos = sockets.get(s);
                         oos.reset();
-                        oos.writeObject(catalog);
+                        oos.writeObject(new Request<Item>((ArrayList<Item>) catalog, updatedCart, response));
                         oos.flush();
 
                         System.out.println("sending updated catalog back to client");
@@ -86,28 +94,33 @@ public class Server {
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
                 while (true) {
                     Request selected = (Request) (ois.readObject());
-
                     if (selected.getType().equals("checkout")) {
-                        for (Object s : selected.getList()) {
+                        for (Object s : selected.getCatalog()) {
                             synchronized (lock1) {
                                 Item borrowItem = (Item) (s);
-                                catalog.remove(forTitle(borrowItem.getTitle()));
+//                                doesn't actually remove right here
+                                catalog.remove(getEqualItem(catalog, borrowItem));
+                                System.out.println("adding book to cart: " + borrowItem);
+                                selected.getCart().add(borrowItem);
                             }
                         }
                     }
 
                     if (selected.getType().equals("return")) {
-                        for (Object s : selected.getList()) {
+                        for (Object s : selected.getCatalog()) {
                             synchronized (lock2) {
                                 Item returnItem = (Item) (s);
+//                                doesn't actually add right here
                                 catalog.add(returnItem);
+//
+                                selected.getCart().remove(getEqualItem(selected.getCart(), returnItem));
                             }
                         }
                     }
 
                     System.out.println("updated catalog should be: " + catalog.toString());
 
-                    Thread sender = new Thread(new ClientSender());
+                    Thread sender = new Thread(new ClientSender(selected.getType(), selected.getCart()));
                     sender.start();
 
 
@@ -118,9 +131,10 @@ public class Server {
         }
     }
 
-    private Item forTitle(String s) {
-        for (Item i : catalog) {
-            if (i.getTitle().equals(s)) {
+    private Item getEqualItem(List<Item> list, Item s) {
+        for (Item i : list) {
+            if (i.equals(s)) {
+                System.out.println("found equal item");
                 return i;
             }
         }

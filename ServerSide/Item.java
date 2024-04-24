@@ -16,7 +16,6 @@ public class Item implements Serializable {
     private List<String> previous;
     private Date lastCheckout;
     private String image;
-
     private String itemType;
     private String title;
     private String author;
@@ -24,20 +23,17 @@ public class Item implements Serializable {
     private String summary;
 
 
-
-//    @Override
-//    public String toString() {
-//        return "[" + itemType + ": " + title + ", " + author + ", " + pages + "]";
-//    }
-
-    @Override
-    public String toString() {
-        return title;
-    }
-
-
-
-    public String getItemType() {return this.itemType;
+//    need to add unique ID, in case of multiple copes do later
+    public Item(String itemType, String title, String author, int pages, String summary, String current, List<String> previous, Date lastCheckout, String image) {
+        this.current = current;
+        this.previous = previous;
+        this.lastCheckout = lastCheckout;
+        this.image = image;
+        this.itemType = itemType;
+        this.title = title;
+        this.author = author;
+        this.pages = pages;
+        this.summary = summary;
     }
 
     public StringProperty itemTypeProperty() {
@@ -74,19 +70,23 @@ public class Item implements Serializable {
 
     public String getSummary() {return this.summary;}
 
+    public String getItemType() {return this.itemType;}
 
-    public Item(String itemType, String title, String author, int pages, String summary, String current, List<String> previous, Date lastCheckout, String image) {
-//        this.description = description;
-        this.current = current;
-        this.previous = previous;
-        this.lastCheckout = lastCheckout;
-        this.image = image;
-        this.itemType = itemType;
-        this.title = title;
-        this.author = author;
-        this.pages = pages;
-        this.summary = summary;
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Item) {
+            Item otherItem = (Item)(other);
+            return (this.title.equals(otherItem.title) && this.author.equals(otherItem.author) && this.pages == otherItem.pages);
+        }
+
+        return false;
     }
+
+    @Override
+    public String toString() {
+        return title;
+    }
+
 
 }
 

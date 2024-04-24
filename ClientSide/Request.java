@@ -13,7 +13,7 @@ public class Request<T> implements Serializable {
         this.type = type;
     }
 
-    public List<T> getList() {
+    public ArrayList<T> getList() {
         return this.list;
     }
 

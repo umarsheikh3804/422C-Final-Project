@@ -1,5 +1,6 @@
 package ClientSide;
 
+import ServerSide.Request;
 import ServerSide.Item;
 import ServerSide.MongoClientConnection;
 import com.mongodb.client.MongoClient;
@@ -61,7 +62,7 @@ public class Client extends Application {
                 public void run() {
                     try {
 //                        loaded catalog/updated catalog sent from server
-                        ArrayList<Item> catalog = (ArrayList<Item>) (fromServer.readObject());
+                        ArrayList<Item> catalog = ((Request) (fromServer.readObject())).getCatalog();
                         catalogHolder[0] = catalog;
                     } catch (Exception e) {
                         e.printStackTrace();

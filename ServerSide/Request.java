@@ -6,16 +6,22 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Request<T> implements Serializable {
-    private ArrayList<T> list;
+    private ArrayList<T> catalog;
+    private ArrayList<T> cart;
     private String type;
 
-    public Request(ArrayList<T> list, String type) {
-        this.list = list;
+    public Request(ArrayList<T> catalog, ArrayList<T> cart, String type) {
+        this.catalog = catalog;
+        this.cart = cart;
         this.type = type;
     }
 
-    public List<T> getList() {
-        return this.list;
+    public ArrayList<T> getCatalog() {
+        return this.catalog;
+    }
+
+    public ArrayList<T> getCart() {
+        return this.cart;
     }
 
     public String getType() {

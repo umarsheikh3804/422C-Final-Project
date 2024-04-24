@@ -4,6 +4,7 @@ import ServerSide.Item;
 import ServerSide.Request;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -39,7 +40,7 @@ public class HomeController {
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     public void init(Stage primaryStage, MongoClient mongoClient, ClientSession session, ObservableList<Item> log, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
@@ -50,7 +51,6 @@ public class HomeController {
         this.tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.fromServer = fromServer;
         this.toServer = toServer;
-//        System.out.println(toServer == null);
     }
 
     public void displayClientSide() {
@@ -86,27 +86,26 @@ public class HomeController {
         ObservableList<Item> selected = tableView.getSelectionModel().getSelectedItems();
 
         ArrayList<Item> toSend = new ArrayList<>(selected);
-//        System.out.println(Arrays.toString(toSend.toArray()));
         toServer.reset();
 
-        toServer.writeObject(new Request<Item>(toSend, "checkout"));
+        toServer.writeObject(new Request<Item>(toSend, new ArrayList<>(cart), "checkout"));
         toServer.flush();
 
 
-        for (Item i : selected) {
-            cart.add(i);
-        }
+//        for (Item i : selected) {
+//            cart.add(i);
+//        }
 
         Thread t = new Thread(new ServerResponseHandler());
         t.start();
     }
 
+    @FXML
     public void return_clicked(ActionEvent actionEvent) throws IOException {
         ObservableList<Item> selected = listView.getSelectionModel().getSelectedItems();
-        ArrayList<Item> toSend = new ArrayList<>(selected);
         toServer.reset();
 
-        toServer.writeObject(new Request<Item>(toSend, "return"));
+        toServer.writeObject(new Request<Item>(new ArrayList<>(selected), new ArrayList<>(cart), "return"));
         toServer.flush();
 
         for (Item s : selected) {
@@ -144,10 +143,19 @@ public class HomeController {
 
             try {
                 synchronized (lock) {
-//                    Request response = (Request) (fromServer.readObject());
-//                    System.out.println()
-                    ArrayList<Item> catalog = (ArrayList<Item>) (fromServer.readObject());
-                    System.out.println(Arrays.toString(catalog.toArray()));
+                    Request response = (Request) (fromServer.readObject());
+                    ArrayList<Item> catalog = response.getCatalog();
+                    ArrayList<Item> updatedCart = response.getCart();
+                    String responseType = response.getType();
+
+//                    can only update JavaFX UI elements from application thread
+                    Platform.runLater(() -> {
+                        log.clear();
+                        log.addAll(catalog);
+                        cart.clear();
+                        cart.addAll(updatedCart);
+                    });
+//
                 }
 
             } catch (Exception e) {
