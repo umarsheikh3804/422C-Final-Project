@@ -7,6 +7,7 @@ import com.mongodb.client.MongoClient;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,16 +21,20 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class HomeController {
     @FXML
-    public TableView tableView;
+    public TableView<Item> tableView;
     public Button checkout_button;
-    public Button logout_button1;
     public Button return_button;
     @FXML
-    public ListView listView;
+    public ListView<Item> listView;
     public Button logout_button;
+
+    @FXML
+    public Button search_button;
+    public TextField search_text;
     private Stage stage;
     private ObservableList<Item> log;
     private ObservableList<Item> cart = FXCollections.observableArrayList();;
@@ -90,11 +95,6 @@ public class HomeController {
         toServer.writeObject(new Request(toSend, new ArrayList<>(cart), "checkout"));
         toServer.flush();
 
-
-//        for (Item i : selected) {
-//            cart.add(i);
-//        }
-
         Thread t = new Thread(new ServerResponseHandler());
         t.start();
     }
@@ -134,6 +134,19 @@ public class HomeController {
         } finally {
             session.close();
         }
+    }
+
+    @FXML
+    public void search_clicked(ActionEvent actionEvent) {
+        tableView.setItems(log);
+        String search = search_text.getText().toLowerCase().trim();
+        System.out.println(search);
+        System.out.println(Arrays.toString(tableView.getItems().toArray()));
+        FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
+                item.getTitle().toLowerCase().contains(search) || item.getAuthor().toLowerCase().contains(search));
+
+        tableView.setItems(filteredList);
+        System.out.println(Arrays.toString(log.toArray()));
     }
 
     class ServerResponseHandler implements Runnable {

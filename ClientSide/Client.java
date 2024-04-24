@@ -54,7 +54,6 @@ public class Client extends Application {
             System.out.println("Network established");
 
             toServer = new ObjectOutputStream(socket.getOutputStream());
-            System.out.println((toServer == null) + " at setup");
             fromServer = new ObjectInputStream(socket.getInputStream());
 
             Thread readerThread = new Thread(new Runnable() {
