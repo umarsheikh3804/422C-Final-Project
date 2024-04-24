@@ -37,6 +37,9 @@ public class LoginController {
     public TextField username1;
     public TextField confirmPassword;
     public TextField password2;
+    public Label pswdMatch;
+    public Label length;
+    public Label invalidLogin;
     private Stage stage;
     private static ObservableList<Item> log = FXCollections.observableArrayList();
     private MongoClient mongoClient;
