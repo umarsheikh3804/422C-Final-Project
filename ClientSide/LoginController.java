@@ -13,7 +13,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.message.Message;
 import org.bson.Document;
+
+import javax.swing.*;
+import java.security.MessageDigest;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +31,10 @@ public class LoginController {
     public TextField username;
     @FXML
     public PasswordField password;
+    public Button signupButton;
+    public TextField username1;
+    public TextField confirmPassword;
+    public TextField password2;
     private Stage stage;
     private static ObservableList<Item> log = FXCollections.observableArrayList();
     private MongoClient mongoClient;
@@ -47,6 +55,9 @@ public class LoginController {
     }
 
     @FXML
+    public void signupPressed(ActionEvent actionEvent) {}
+
+    @FXML
     public void loginPressed(ActionEvent actionEvent) {
         ClientSession session = mongoClient.startSession();
         session.startTransaction();
@@ -65,11 +76,20 @@ public class LoginController {
             stage.setScene(scene);
             stage.show();
 
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(password.getText().getBytes());
+//            digest bytes w/algorithm and return hashed bytes
+            byte[] hashedBytes = md.digest();
+
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
 
             // Insert a user document into the collection
             Document userDocument = new Document()
                     .append("username", username.getText())
-                    .append("password", password.getText())
+                    .append("password", sb.toString())
                     .append("checkedOutBooks", null);
             // Set checked out books and other details as needed
             database.getCollection("library_members").insertOne(userDocument);
