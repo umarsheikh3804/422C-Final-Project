@@ -2,6 +2,7 @@ package ClientSide;
 
 import ServerSide.Item;
 import ServerSide.Request;
+import ServerSide.Server;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import javafx.collections.FXCollections;
@@ -18,6 +19,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -38,6 +40,8 @@ public class HomeController {
 
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
+
+    private Object lock = new Object();
 
     public void init(Stage primaryStage, MongoClient mongoClient, ClientSession session, ObservableList<Item> log, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
@@ -91,33 +95,12 @@ public class HomeController {
         toServer.flush();
 
 
-        Thread readerThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("gets here");
-//                        loaded catalog/updated catalog sent from server
-                    ArrayList<Item> catalog = (ArrayList<Item>) (fromServer.readObject());
-                    System.out.println(Arrays.toString(catalog.toArray()));
-                    log.clear();
-//                    should dynamically update because it is an observeable list
-                    log.addAll(catalog);
-//                    System.out.println(Arrays.toString(log.toArray()));
-//                    displayClientSide();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    System.out.println("Populated catalog");
-
-                }
-            }
-        });
-
-        readerThread.start();
-
         for (Item i : selected) {
             cart.add(i);
         }
+
+        Thread t = new Thread(new ServerResponseHandler());
+        t.start();
     }
 
     public void return_clicked(ActionEvent actionEvent) throws IOException {
@@ -128,14 +111,13 @@ public class HomeController {
         toServer.writeObject(new Request<Item>(toSend, "return"));
         toServer.flush();
 
-//        need some way to ensure that server has updated catalog and sent it back, otherwise will have some issue reading input
-
         for (Item s : selected) {
             cart.remove(s);
         }
+
+        Thread t = new Thread(new ServerResponseHandler());
+        t.start();
     }
-
-
 
 
 
@@ -157,4 +139,26 @@ public class HomeController {
             session.close();
         }
     }
+
+    class ServerResponseHandler implements Runnable {
+        @Override
+        public void run() {
+
+            try {
+                synchronized (lock) {
+//                    Request response = (Request) (fromServer.readObject());
+//                    System.out.println()
+                    ArrayList<Item> catalog = (ArrayList<Item>) (fromServer.readObject());
+                    System.out.println(Arrays.toString(catalog.toArray()));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+    }
+
 }

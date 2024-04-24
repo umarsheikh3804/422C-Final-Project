@@ -61,16 +61,16 @@ public class Server {
 
         public void run() {
             try {
-                for (Socket s : sockets.keySet()) {
-//                            maybe initialize ios an oos once
-//                            System.out.println("gets here");
-                    ObjectOutputStream oos = sockets.get(s);
-                    oos.reset();
-                    oos.writeObject(catalog);
-                    oos.flush();
-//                            print statement to check if it sends to client
-                    System.out.println("sending updated catalog back to client");
+//                we may need to put a lock here since you don't want to send the 2 different catalogs to the same client
+                synchronized (lock1) {
+                    for (Socket s : sockets.keySet()) {
+                        ObjectOutputStream oos = sockets.get(s);
+                        oos.reset();
+                        oos.writeObject(catalog);
+                        oos.flush();
 
+                        System.out.println("sending updated catalog back to client");
+                    }
                 }
 
             } catch (IOException e) {
