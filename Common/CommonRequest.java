@@ -1,6 +1,4 @@
-package ClientSide;
-
-import ClientSide.Item;
+package Common;
 
 import java.io.Serializable;
 import java.util.ArrayList;

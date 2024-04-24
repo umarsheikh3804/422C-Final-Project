@@ -1,5 +1,7 @@
 package ClientSide;
 
+import Common.Item;
+import Common.Request;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import javafx.application.Platform;

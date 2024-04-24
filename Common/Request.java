@@ -1,7 +1,4 @@
-package ClientSide;
-
-import ClientSide.Item;
-import ClientSide.CommonRequest;
+package Common;
 
 import java.io.Serializable;
 import java.util.ArrayList;

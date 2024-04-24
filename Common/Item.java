@@ -1,13 +1,10 @@
-package ServerSide;
+package Common;
 
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import java.awt.*;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
