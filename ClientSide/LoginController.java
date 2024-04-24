@@ -1,6 +1,5 @@
 package ClientSide;
 
-import ServerSide.Item;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
@@ -18,7 +17,6 @@ import org.bson.Document;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class LoginController {
 
@@ -43,7 +41,7 @@ public class LoginController {
         this.fromServer = fromServer;
     }
 
-    public void populateCatalog(List<Item> items) {
+    public void populateCatalog(ArrayList<Item> items) {
         log.addAll(items);
     }
 

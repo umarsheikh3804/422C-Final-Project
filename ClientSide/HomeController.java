@@ -1,7 +1,5 @@
 package ClientSide;
 
-import ServerSide.Item;
-import ServerSide.Request;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import javafx.application.Platform;
@@ -20,7 +18,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class HomeController {
     @FXML
@@ -88,7 +85,7 @@ public class HomeController {
         ArrayList<Item> toSend = new ArrayList<>(selected);
         toServer.reset();
 
-        toServer.writeObject(new Request<Item>(toSend, new ArrayList<>(cart), "checkout"));
+        toServer.writeObject(new Request(toSend, new ArrayList<>(cart), "checkout"));
         toServer.flush();
 
 
@@ -105,7 +102,7 @@ public class HomeController {
         ObservableList<Item> selected = listView.getSelectionModel().getSelectedItems();
         toServer.reset();
 
-        toServer.writeObject(new Request<Item>(new ArrayList<>(selected), new ArrayList<>(cart), "return"));
+        toServer.writeObject(new Request(new ArrayList<>(selected), new ArrayList<>(cart), "return"));
         toServer.flush();
 
         for (Item s : selected) {

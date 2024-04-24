@@ -67,7 +67,7 @@ public class Server {
                     for (Socket s : sockets.keySet()) {
                         ObjectOutputStream oos = sockets.get(s);
                         oos.reset();
-                        oos.writeObject(new Request<Item>((ArrayList<Item>) catalog, updatedCart, response));
+                        oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response));
                         oos.flush();
 
                         System.out.println("sending updated catalog back to client");
