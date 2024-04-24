@@ -88,17 +88,17 @@
       <TextField fx:id="username1" layoutX="358.0" layoutY="182.0" prefHeight="25.0" prefWidth="239.0" promptText="Username" />
       <TextField fx:id="confirmPassword" layoutX="358.0" layoutY="281.0" prefHeight="25.0" prefWidth="239.0" promptText="Confirm password" />
       <TextField fx:id="password2" layoutX="358.0" layoutY="232.0" prefHeight="25.0" prefWidth="239.0" promptText="Create Password" />
-      <Label fx:id="invalidLogin" layoutX="94.0" layoutY="175.0" prefHeight="14.0" prefWidth="156.0" text="Invalid username or password" textFill="RED">
+      <Label fx:id="invalidLogin" layoutX="94.0" layoutY="175.0" prefHeight="14.0" prefWidth="156.0" text="Invalid username or password" textFill="RED" visible="false">
          <font>
             <Font name="Calibri" size="11.0" />
          </font>
       </Label>
-      <Label fx:id="length" layoutX="380.0" layoutY="258.0" prefHeight="14.0" prefWidth="239.0" text="Your password must be atleast 8 characters" textFill="RED">
+      <Label fx:id="length" layoutX="380.0" layoutY="258.0" prefHeight="14.0" prefWidth="239.0" text="Your password must be atleast 8 characters" textFill="RED" visible="false">
          <font>
             <Font name="Calibri" size="11.0" />
          </font>
       </Label>
-      <Label fx:id="pswdMatch" layoutX="422.0" layoutY="306.0" prefHeight="14.0" prefWidth="112.0" text="Passwords don't match" textFill="RED">
+      <Label fx:id="pswdMatch" layoutX="422.0" layoutY="306.0" prefHeight="14.0" prefWidth="112.0" text="Passwords don't match" textFill="RED" visible="false">
          <font>
             <Font name="Calibri" size="11.0" />
          </font>
