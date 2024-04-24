@@ -2,7 +2,6 @@ package ClientSide;
 
 import ServerSide.Item;
 import ServerSide.Request;
-import ServerSide.Server;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import javafx.collections.FXCollections;
@@ -19,7 +18,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 

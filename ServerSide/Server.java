@@ -41,8 +41,7 @@ public class Server {
                 System.out.println("incoming transmission");
                 Thread sender = new Thread(new ClientSender());
                 Thread reader = new Thread(new ClientReader(clientSocket));
-//                sendCatalog = true;
-//                sender.start();
+
                 sender.start();
                 reader.start();
             }
@@ -52,12 +51,6 @@ public class Server {
     }
 
     class ClientSender implements Runnable {
-
-//        private Socket clientSocket;
-//        ClientSender(Socket clientSocket) {
-//            this.clientSocket = clientSocket;
-//        }
-
 
         public void run() {
             try {
@@ -94,14 +87,11 @@ public class Server {
                 while (true) {
                     Request selected = (Request) (ois.readObject());
 
-//                    technically speaking a user can't check out and borrow at the same time, but I have added 2
-//                    locks nonetheless
                     if (selected.getType().equals("checkout")) {
                         for (Object s : selected.getList()) {
                             synchronized (lock1) {
                                 Item borrowItem = (Item) (s);
                                 catalog.remove(forTitle(borrowItem.getTitle()));
-//                                System.out.println(borrowItem);
                             }
                         }
                     }
