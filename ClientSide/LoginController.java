@@ -13,12 +13,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.message.Message;
 import org.bson.Document;
 
 import javax.print.Doc;
 import javax.swing.*;
+import java.io.File;
 import java.security.MessageDigest;
 
 import java.io.ObjectInputStream;
@@ -47,6 +50,9 @@ public class LoginController {
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
 
+    private MediaPlayer player1 =  new MediaPlayer(new Media(new File("ClientSide/sounds/errorSound.mp3").toURI().toString()));
+    private MediaPlayer player2 =  new MediaPlayer(new Media(new File("ClientSide/sounds/successSound.mp3").toURI().toString()));
+
     public void init(Stage primaryStage, MongoClient mongoClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
         this.mongoClient = mongoClient;
@@ -70,6 +76,10 @@ public class LoginController {
                 try {
                     MongoDatabase database = mongoClient.getDatabase("Users");
 
+//                    player2.play();
+//                    player2.setOnEndOfMedia(() -> {
+//                        player2.stop();
+//                    });
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
                     Parent root = loader.load();
                     HomeController controller = loader.getController();
@@ -109,11 +119,19 @@ public class LoginController {
             } else {
                 length.setVisible(false);
                 pswdMatch.setVisible(true);
+                player1.play();
+                player1.setOnEndOfMedia(() -> {
+                    player1.stop();
+                });
             }
 
         } else {
             pswdMatch.setVisible(false);
             length.setVisible(true);
+            player1.play();
+            player1.setOnEndOfMedia(() -> {
+                player1.stop();
+            });
         }
 
 
@@ -159,12 +177,20 @@ public class LoginController {
                     stage.show();
                     mismatch = false;
                     invalidLogin.setVisible(false);
+//                    player2.play();
+//                    player2.setOnEndOfMedia(() -> {
+//                        player2.stop();
+//                    });
                     break;
                 }
             }
 
             if (mismatch) {
                 invalidLogin.setVisible(true);
+                player1.play();
+                player1.setOnEndOfMedia(() -> {
+                    player1.stop();
+                });
             }
 
 
