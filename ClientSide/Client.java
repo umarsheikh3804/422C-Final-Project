@@ -2,9 +2,6 @@ package ClientSide;
 
 import Common.Item;
 import Common.Request;
-import ServerSide.MongoClientConnection;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,6 +11,7 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Client extends Application {
 
@@ -34,13 +32,11 @@ public class Client extends Application {
             e.printStackTrace();
         }
 
-        MongoClient mongoClient = MongoClients.create(new MongoClientConnection().connectDB());
-
         FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
         Parent root = loader.load();
         LoginController controller = loader.getController();
 
-        controller.init(primaryStage, mongoClient, toServer, fromServer);
+        controller.init(primaryStage, toServer, fromServer);
         controller.populateCatalog(catalogHolder[0]);
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
@@ -62,6 +58,7 @@ public class Client extends Application {
                     try {
 //                        loaded catalog/updated catalog sent from server
                         ArrayList<Item> catalog = ((Request) (fromServer.readObject())).getCatalog();
+                        System.out.println(Arrays.toString(catalog.toArray()));
                         catalogHolder[0] = catalog;
                     } catch (Exception e) {
                         e.printStackTrace();

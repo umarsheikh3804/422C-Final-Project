@@ -2,8 +2,6 @@ package ClientSide;
 
 import Common.Item;
 import Common.Request;
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.MongoClient;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,25 +29,19 @@ public class HomeController {
     @FXML
     public ListView<Item> listView;
     public Button logout_button;
-
     @FXML
     public Button search_button;
     public TextField search_text;
     private Stage stage;
     private ObservableList<Item> log;
     private ObservableList<Item> cart = FXCollections.observableArrayList();;
-    private MongoClient mongoClient;
-    private ClientSession session;
-
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
 
     private final Object lock = new Object();
 
-    public void init(Stage primaryStage, MongoClient mongoClient, ClientSession session, ObservableList<Item> log, ObjectOutputStream toServer, ObjectInputStream fromServer) {
+    public void init(Stage primaryStage, ObservableList<Item> log, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
-        this.mongoClient = mongoClient;
-        this.session = session;
         this.log = log;
         this.listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -69,6 +61,9 @@ public class HomeController {
         tableView.setItems(log);
 
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+//        TableColumn<Item, String> isbnColumn = new TableColumn<>("isbn");
+//        isbnColumn.setCellValueFactory(log -> log.getValue().isbnProperty());
 
         TableColumn<Item, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(log -> log.getValue().titleProperty());
@@ -124,15 +119,13 @@ public class HomeController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
             Parent root = loader.load();
             LoginController controller = loader.getController();
-            controller.init(stage, mongoClient, toServer, fromServer);
+            controller.init(stage, toServer, fromServer);
 
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            session.close();
         }
     }
 
@@ -158,8 +151,6 @@ public class HomeController {
                     Request response = (Request) (fromServer.readObject());
                     ArrayList<Item> catalog = response.getCatalog();
                     ArrayList<Item> updatedCart = response.getCart();
-                    String responseType = response.getType();
-
 //                    can only update JavaFX UI elements from application thread
                     Platform.runLater(() -> {
                         log.clear();

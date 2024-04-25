@@ -9,33 +9,39 @@ import java.util.Date;
 import java.util.List;
 
 public class Item implements Serializable {
-    private String current;
-    private List<String> previous;
-    private Date lastCheckout;
+//    private String current;
+//    private List<String> previous;
+//    private Date lastCheckout;
     private String image;
     private String itemType;
     private String title;
     private String author;
     private int pages;
+    private static int current = 0000000000000;
+
+    private String isbn;
     private String summary;
 
 
 //    need to add unique ID, in case of multiple copes do later
-    public Item(String itemType, String title, String author, int pages, String summary, String current, List<String> previous, Date lastCheckout, String image) {
-        this.current = current;
-        this.previous = previous;
-        this.lastCheckout = lastCheckout;
+    public Item(String itemType, String title, String author, int pages, String summary, String image) {
+//        this.current = current;
+//        this.previous = previous;
+//        this.lastCheckout = lastCheckout;
         this.image = image;
         this.itemType = itemType;
         this.title = title;
         this.author = author;
         this.pages = pages;
         this.summary = summary;
+        isbn = String.valueOf(current);
+        current += 1;
+
     }
 
-    public StringProperty itemTypeProperty() {
-        return new SimpleStringProperty(this.itemType);
-    }
+//    public StringProperty itemTypeProperty() {
+//        return new SimpleStringProperty(this.itemType);
+//    }
 
     public ObservableValue<String> titleProperty() {
         return new SimpleStringProperty(this.title);
@@ -43,6 +49,10 @@ public class Item implements Serializable {
 
     public ObservableValue<String> authorProperty() {
         return new SimpleStringProperty(this.author);
+    }
+
+    public ObservableValue<String> isbnProperty() {
+        return new SimpleStringProperty(this.isbn);
     }
 
     public ObservableValue<ImageView> imageProperty() {
@@ -63,17 +73,19 @@ public class Item implements Serializable {
 
     public String getAuthor() {return this.author;}
 
-    public int getPages() {return this.pages;}
+    public String getIsbn() {return this.isbn;}
 
-    public String getSummary() {return this.summary;}
-
-    public String getItemType() {return this.itemType;}
+//    public int getPages() {return this.pages;}
+//
+//    public String getSummary() {return this.summary;}
+//
+//    public String getItemType() {return this.itemType;}
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Item) {
             Item otherItem = (Item)(other);
-            return (this.title.equals(otherItem.title) && this.author.equals(otherItem.author) && this.pages == otherItem.pages);
+            return (this.isbn.equals(otherItem.isbn));
         }
 
         return false;
@@ -81,7 +93,7 @@ public class Item implements Serializable {
 
     @Override
     public String toString() {
-        return title;
+        return isbn + ": " + title + ", " + author + ", " + pages;
     }
 
 

@@ -1,10 +1,8 @@
 package ClientSide;
 
+import Common.DBRequest;
 import Common.Item;
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -16,11 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.message.Message;
-import org.bson.Document;
-
-import javax.print.Doc;
-import javax.swing.*;
 import java.io.File;
 import java.security.MessageDigest;
 
@@ -45,7 +38,6 @@ public class LoginController {
     public Label invalidLogin;
     private Stage stage;
     private static ObservableList<Item> log = FXCollections.observableArrayList();
-    private MongoClient mongoClient;
 
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
@@ -53,11 +45,9 @@ public class LoginController {
     private MediaPlayer player1 =  new MediaPlayer(new Media(new File("ClientSide/sounds/errorSound.mp3").toURI().toString()));
     private MediaPlayer player2 =  new MediaPlayer(new Media(new File("ClientSide/sounds/successSound.mp3").toURI().toString()));
 
-    public void init(Stage primaryStage, MongoClient mongoClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
+    public void init(Stage primaryStage, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
-        this.mongoClient = mongoClient;
         this.toServer = toServer;
-//        System.out.println(toServer == null);
         this.fromServer = fromServer;
     }
 
@@ -68,23 +58,13 @@ public class LoginController {
     @FXML
     public void signupPressed(ActionEvent actionEvent) {
         if (password2.getText().length() >= 8) {
-
             if (password2.getText().equals(confirmPassword.getText())) {
-                ClientSession session = mongoClient.startSession();
-                session.startTransaction();
-
                 try {
-                    MongoDatabase database = mongoClient.getDatabase("Users");
-
-//                    player2.play();
-//                    player2.setOnEndOfMedia(() -> {
-//                        player2.stop();
-//                    });
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
                     Parent root = loader.load();
                     HomeController controller = loader.getController();
                     System.out.println(toServer == null);
-                    controller.init(stage, mongoClient, session, log, toServer, fromServer);
+                    controller.init(stage, log, toServer, fromServer);
                     controller.displayClientSide();
 
                     Scene scene = new Scene(root);
@@ -101,17 +81,8 @@ public class LoginController {
                         sb.append(String.format("%02x", b));
                     }
 
-                    System.out.println(username1.getText());
-                    System.out.println(sb.toString());
-                    // Insert a user document into the collection
-                    Document userDocument = new Document()
-                            .append("username", username1.getText())
-                            .append("password", sb.toString())
-                            .append("checkedOutBooks", null);
-                    // Set checked out books and other details as needed
-                    database.getCollection("library_members").insertOne(userDocument);
-                    System.out.println("User added successfully!");
-
+                    toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), false));
+                    toServer.flush();
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -139,12 +110,7 @@ public class LoginController {
 
     @FXML
     public void loginPressed(ActionEvent actionEvent) {
-        ClientSession session = mongoClient.startSession();
-        session.startTransaction();
-
         try {
-            MongoDatabase database = mongoClient.getDatabase("Users");
-
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(password.getText().getBytes());
 //            digest bytes w/algorithm and return hashed bytes
@@ -157,48 +123,53 @@ public class LoginController {
 
             System.out.println(username.getText());
             System.out.println(sb.toString());
-            Document query = new Document("username", username.getText()).append("password", sb.toString());
-            // Insert a user document into the collection
-//            check username and password in database
-            FindIterable<Document> result = database.getCollection("library_members").find(query);
 
-            boolean mismatch = true;
-            for (Document d : result) {
-                if (d != null) {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
-                    Parent root = loader.load();
-                    HomeController controller = loader.getController();
-                    System.out.println(toServer == null);
-                    controller.init(stage, mongoClient, session, log, toServer, fromServer);
-                    controller.displayClientSide();
+            toServer.writeObject(new DBRequest("check", username.getText(), sb.toString(), false));
+            toServer.flush();
+            Thread dbResponseHandler = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    DBRequest response = null;
+                    try {
+                        response = (DBRequest) (fromServer.readObject());
+                        if (response.getResult()) {
+                            System.out.println(response.getResult());
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
+                            Parent root = loader.load();
+                            HomeController controller = loader.getController();
+                            controller.init(stage, log, toServer, fromServer);
+                            controller.displayClientSide();
 
-                    Scene scene = new Scene(root);
-                    stage.setScene(scene);
-                    stage.show();
-                    mismatch = false;
-                    invalidLogin.setVisible(false);
-//                    player2.play();
-//                    player2.setOnEndOfMedia(() -> {
-//                        player2.stop();
-//                    });
-                    break;
+                            Platform.runLater(() -> {
+                                Scene scene = new Scene(root);
+                                stage.setScene(scene);
+                                stage.show();
+                                invalidLogin.setVisible(false);
+                            });
+                        } else {
+                            Platform.runLater(() -> {
+                                invalidLogin.setVisible(true);
+                                player1.play();
+                                player1.setOnEndOfMedia(() -> {
+                                    player1.stop();
+                                });
+                            });
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
+            });
 
-            if (mismatch) {
-                invalidLogin.setVisible(true);
-                player1.play();
-                player1.setOnEndOfMedia(() -> {
-                    player1.stop();
-                });
-            }
-
-
+            dbResponseHandler.start();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+
 
 
 }
