@@ -137,6 +137,7 @@ public class HomeController {
     @FXML
     public void search_clicked(ActionEvent actionEvent) {
         tableView.setItems(log);
+        System.out.println(search_text.getText());
         String search = search_text.getText().toLowerCase().trim();
         System.out.println(search);
         System.out.println(Arrays.toString(tableView.getItems().toArray()));

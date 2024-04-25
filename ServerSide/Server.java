@@ -222,8 +222,12 @@ public class Server {
     }
 
     private static void updateItemCollection() {
-        itemsCollection.deleteMany(new Document());
-        itemsCollection.insertMany(catalog);
+        if (itemsCollection.countDocuments() > 0) {
+            itemsCollection.deleteMany(new Document());
+        }
+        if (!catalog.isEmpty()) {
+            itemsCollection.insertMany(catalog);
+        }
     }
 
 

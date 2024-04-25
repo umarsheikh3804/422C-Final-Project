@@ -64,29 +64,29 @@ public class LoginController {
     @FXML
     public void signupPressed(ActionEvent actionEvent) {
         if (password2.getText().length() < 8) {
+            player1.play();
+            player1.setOnEndOfMedia(() -> {
+                player1.stop();
+            });
             pswdMatch.setVisible(false);
             strengthMessage.setVisible(false);
             length.setVisible(true);
+        } else if (!strengthTest(password2.getText())) {
             player1.play();
             player1.setOnEndOfMedia(() -> {
                 player1.stop();
             });
-        } else if (!strengthTest(password2.getText())) {
             pswdMatch.setVisible(false);
             length.setVisible(false);
             strengthMessage.setVisible(true);
+        } else if (!password2.getText().equals(confirmPassword.getText())) {
             player1.play();
             player1.setOnEndOfMedia(() -> {
                 player1.stop();
             });
-        } else if (!password2.getText().equals(confirmPassword.getText())) {
             length.setVisible(false);
             strengthMessage.setVisible(false);
             pswdMatch.setVisible(true);
-            player1.play();
-            player1.setOnEndOfMedia(() -> {
-                player1.stop();
-            });
         } else {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
@@ -160,12 +160,12 @@ public class LoginController {
                                 invalidLogin.setVisible(false);
                             });
                         } else {
+                            player1.play();
+                            player1.setOnEndOfMedia(() -> {
+                                player1.stop();
+                            });
                             Platform.runLater(() -> {
                                 invalidLogin.setVisible(true);
-                                player1.play();
-                                player1.setOnEndOfMedia(() -> {
-                                    player1.stop();
-                                });
                             });
                         }
 
