@@ -33,6 +33,7 @@
 -->
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
@@ -80,11 +81,6 @@
             <Font name="Calibri Bold" size="24.0" />
          </font>
       </Label>
-      <Label layoutX="125.0" layoutY="287.0" prefHeight="14.0" prefWidth="95.0" text="Forgot password?" textFill="#0072ff">
-         <font>
-            <Font name="Calibri" size="11.0" />
-         </font>
-      </Label>
       <TextField fx:id="username1" layoutX="358.0" layoutY="182.0" prefHeight="25.0" prefWidth="239.0" promptText="Username" />
       <TextField fx:id="confirmPassword" layoutX="358.0" layoutY="281.0" prefHeight="25.0" prefWidth="239.0" promptText="Confirm password" />
       <TextField fx:id="password2" layoutX="358.0" layoutY="232.0" prefHeight="25.0" prefWidth="239.0" promptText="Create Password" />
@@ -103,5 +99,6 @@
             <Font name="Calibri" size="11.0" />
          </font>
       </Label>
+      <Hyperlink fx:id="forgotLabel" layoutX="121.0" layoutY="269.0" onAction="#forgotPassword" text="Forgot password?" />
    </AnchorPane>
 </VBox>

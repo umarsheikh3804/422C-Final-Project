@@ -91,9 +91,14 @@ public class Item implements Serializable {
         return false;
     }
 
+//    @Override
+//    public String toString() {
+//        return isbn + ": " + title + ", " + author + ", " + pages;
+//    }
+
     @Override
     public String toString() {
-        return isbn + ": " + title + ", " + author + ", " + pages;
+        return title;
     }
 
 

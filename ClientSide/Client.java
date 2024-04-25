@@ -57,6 +57,7 @@ public class Client extends Application {
                 public void run() {
                     try {
 //                        loaded catalog/updated catalog sent from server
+//                        have to take into account case where server is running and client is shut down
                         ArrayList<Item> catalog = ((Request) (fromServer.readObject())).getCatalog();
                         System.out.println(Arrays.toString(catalog.toArray()));
                         catalogHolder[0] = catalog;

@@ -3,8 +3,13 @@ import java.io.*;
 import Common.DBRequest;
 import Common.Item;
 import Common.Request;
+import com.mongodb.MongoException;
 import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import org.bson.BsonDocument;
+import org.bson.BsonInt64;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
@@ -18,22 +23,40 @@ public class Server {
     private final Object lock2 = new Object();
     Map<Socket, ObjectOutputStream> sockets = new HashMap<>();
 
-    MongoClient mongoClient = MongoClients.create(new MongoClientConnection().connectDB());
+    private static MongoClient mongo;
+    private static MongoDatabase database;
+    private static MongoCollection<Document> collection;
+    private static final String URI = "mongodb+srv://umarsheikh4804:u1Q6b5NZfcgCICu4@cluster0.w2ijtfr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    private static final String DB = "Users";
+    private static final String COLLECTION = "library_members";
 
-    ClientSession session;
+    private ClientSession session;
+
+
 
     public static void main(String[] args) throws MalformedURLException, FileNotFoundException {
-//        Scanner fs = new Scanner(new File("input.txt"));
-//        while (fs.hasNextLine()) {
-//            String line = fs.nextLine();
-//            String[] arr = line.split(",");
-//            catalog.add(new Item(arr[0], arr[1], arr[2], arr[3]))
-//        }
+
+        mongo = MongoClients.create(URI);
+        database = mongo.getDatabase(DB);
+        collection = database.getCollection(COLLECTION);
+        ping();
+
         catalog.add(new Item("Book", "The Road", "Cormac McCarthy", 200, "", "ServerSide/images/TR.jpg"));
         catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "ServerSide/images/CR.jpg"));
         catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "ServerSide/images/HP.jpg"));
         new Server().setupNetworking();
     }
+
+    public static void ping() {
+        try {
+            Bson command = new BsonDocument("ping", new BsonInt64(1));
+            Document commandResult = database.runCommand(command);
+            System.out.println("Connected successfully to server.");
+        } catch (MongoException me) {
+            me.printStackTrace();
+        }
+    }
+
 
 
     private void setupNetworking() {
@@ -110,9 +133,9 @@ public class Server {
 
         public void run() {
             try {
-                session = mongoClient.startSession();
+                session = mongo.startSession();
                 session.startTransaction();
-                MongoDatabase database = mongoClient.getDatabase("Users");
+//                MongoDatabase database = mongoClient.getDatabase("Users");
 //                need to implement backend server logic to update catalog based on items checked out and borrowed
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
                 while (true) {
@@ -148,34 +171,22 @@ public class Server {
 
                     } else {
                         DBRequest dbRequest = (DBRequest) (request);
-                        System.out.println(dbRequest.getUsername());
-                        System.out.println(dbRequest.getPassword());
                         if (dbRequest.getType().equals("addUser")) {
                             Document userDocument = new Document()
                                     .append("username", dbRequest.getUsername())
                                     .append("password", dbRequest.getPassword())
                                     .append("checkedOutBooks", null);
                             // Set checked out books and other details as needed
-                            database.getCollection("library_members").insertOne(userDocument);
+                            collection.insertOne(userDocument);
                             System.out.println("User added successfully!");
                         }
 
                         if (dbRequest.getType().equals("check")) {
                             System.out.println("gets here");
                             Document query = new Document("username", dbRequest.getUsername()).append("password", dbRequest.getPassword());
-                            FindIterable<Document> results = database.getCollection("library_members").find(query);
-                            boolean result = false;
-                            System.out.println(Arrays.toString(results.into(new ArrayList<>()).toArray()));
-                            for (Document d : results) {
-                                System.out.println("gets here 2");
-                                if (d != null) {
-                                    result = true;
-                                    System.out.println("match found");
-                                    break;
-                                }
-                            }
+                            int available = collection.find(query).cursor().available();
 
-                            new Thread(new ClientResponseHandler("dbRequest", null, result, clientSocket)).start();
+                            new Thread(new ClientResponseHandler("dbRequest", null, (available > 0), clientSocket)).start();
                         }
                     }
 

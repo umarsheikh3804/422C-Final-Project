@@ -37,7 +37,6 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -50,9 +49,9 @@
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
         <SplitPane dividerPositions="0.75" layoutX="-1.0" layoutY="48.0" prefHeight="353.0" prefWidth="640.0">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="343.0" prefWidth="476.0">
-                <ScrollPane layoutX="48.0" layoutY="46.0" prefHeight="260.0" prefWidth="402.0">
+                <ScrollPane layoutX="15.0" layoutY="46.0" prefHeight="260.0" prefWidth="452.0">
                <content>
-                  <TableView fx:id="tableView" prefHeight="249.0" prefWidth="403.0">
+                  <TableView fx:id="tableView" prefHeight="259.0" prefWidth="450.0">
 <!--                    <columns>-->
 <!--                      <TableColumn prefWidth="75.0" text="C1" />-->
 <!--                      <TableColumn prefWidth="75.0" text="C2" />-->
@@ -61,9 +60,9 @@
                </content>
                 </ScrollPane>
 
-                <TextField fx:id="search_text" layoutX="234.0" layoutY="11.0" prefHeight="25.0" prefWidth="178.0" />
+                <TextField layoutX="234.0" layoutY="11.0" prefHeight="25.0" prefWidth="178.0" />
                 <Label layoutX="187.0" layoutY="14.0" text="Browse" />
-                <Button fx:id="checkout_button" layoutX="26.0" layoutY="313.0" mnemonicParsing="false" onAction="#checkout_clicked" prefHeight="25.0" prefWidth="435.0" text="CHECKOUT">
+                <Button fx:id="checkout_button" layoutX="15.0" layoutY="313.0" mnemonicParsing="false" onAction="#checkout_clicked" prefHeight="25.0" prefWidth="452.0" text="CHECKOUT">
                     <font>
                         <Font name="Calibri Bold" size="12.0" />
                     </font>
@@ -73,7 +72,7 @@
                         <Font name="Calibri Bold" size="16.0" />
                     </font>
                 </Label>
-                <Button fx:id="search_button" layoutX="412.0" layoutY="10.0" mnemonicParsing="false" onAction="#search_clicked" prefHeight="25.0" prefWidth="60.0" text="SEARCH">
+                <Button fx:id="logout_button1" layoutX="412.0" layoutY="10.0" mnemonicParsing="false" onAction="#logout_clicked" prefHeight="25.0" prefWidth="60.0" text="SEARCH">
                     <font>
                         <Font name="Calibri Bold" size="12.0" />
                     </font>
@@ -108,7 +107,7 @@
                 <Font name="Calibri Bold" size="20.0" />
             </font>
         </Label>
-        <Label layoutX="194.0" layoutY="15.0" prefHeight="23.0" prefWidth="178.0" text="User">
+        <Label fx:id="name" layoutX="194.0" layoutY="15.0" prefHeight="23.0" prefWidth="178.0" text="User">
             <font>
                 <Font name="Calibri Bold" size="20.0" />
             </font>

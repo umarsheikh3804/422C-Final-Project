@@ -34,7 +34,7 @@ public class HomeController {
     public TextField search_text;
     private Stage stage;
     private ObservableList<Item> log;
-    private ObservableList<Item> cart = FXCollections.observableArrayList();;
+    private static ObservableList<Item> cart = FXCollections.observableArrayList();;
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
 
@@ -60,8 +60,6 @@ public class HomeController {
         // Set the items for the TableView
         tableView.setItems(log);
 
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
 //        TableColumn<Item, String> isbnColumn = new TableColumn<>("isbn");
 //        isbnColumn.setCellValueFactory(log -> log.getValue().isbnProperty());
 
@@ -74,6 +72,13 @@ public class HomeController {
         TableColumn<Item, ImageView> imageColumn = new TableColumn<>("Image");
         imageColumn.setCellValueFactory(log -> {
             return log.getValue().imageProperty(); // Assuming you have a method to get the image
+        });
+
+        tableView.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            double availableWidth = newWidth.doubleValue() - 50;
+            titleColumn.setPrefWidth(availableWidth * 0.4);
+            authorColumn.setPrefWidth(availableWidth * 0.4);
+            imageColumn.setPrefWidth(availableWidth * 0.2);
         });
 
         tableView.getColumns().addAll(titleColumn, authorColumn, imageColumn);

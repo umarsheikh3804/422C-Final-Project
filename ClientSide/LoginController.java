@@ -36,6 +36,8 @@ public class LoginController {
     public Label pswdMatch;
     public Label length;
     public Label invalidLogin;
+    public Label forgotPassword;
+    public Hyperlink forgotLabel;
     private Stage stage;
     private static ObservableList<Item> log = FXCollections.observableArrayList();
 
@@ -49,6 +51,8 @@ public class LoginController {
         this.stage = primaryStage;
         this.toServer = toServer;
         this.fromServer = fromServer;
+//        log.addAll(items);
+
     }
 
     public void populateCatalog(ArrayList<Item> items) {
@@ -170,6 +174,8 @@ public class LoginController {
     }
 
 
+    @FXML
+    public void forgotPassword(ActionEvent actionEvent) {
 
-
+    }
 }
