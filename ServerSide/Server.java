@@ -9,12 +9,25 @@ import com.mongodb.client.model.Filters;
 import org.bson.BsonDocument;
 import org.bson.BsonInt64;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecProvider;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+
+import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
+
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 public class Server {
 
@@ -30,6 +43,9 @@ public class Server {
     private static final String DB = "Users";
     private static final String COLLECTION = "library_members";
 
+    private static MongoCollection<Item> itemsCollection;
+    private static final String COLLECTION2 = "Catalog";
+
     private ClientSession session;
 
 
@@ -39,25 +55,18 @@ public class Server {
         mongo = MongoClients.create(URI);
         database = mongo.getDatabase(DB);
         collection = database.getCollection(COLLECTION);
-        ping();
+
+        CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
+        CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
+        itemsCollection = database.withCodecRegistry(pojoCodecRegistry).getCollection(COLLECTION2, Item.class);
 
         catalog.add(new Item("Book", "The Road", "Cormac McCarthy", 200, "", "ServerSide/images/TR.jpg"));
         catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "ServerSide/images/CR.jpg"));
         catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "ServerSide/images/HP.jpg"));
+
+        updateItemCollection();
         new Server().setupNetworking();
     }
-
-    public static void ping() {
-        try {
-            Bson command = new BsonDocument("ping", new BsonInt64(1));
-            Document commandResult = database.runCommand(command);
-            System.out.println("Connected successfully to server.");
-        } catch (MongoException me) {
-            me.printStackTrace();
-        }
-    }
-
-
 
     private void setupNetworking() {
         try {
@@ -167,6 +176,8 @@ public class Server {
                                 }
                             }
                         }
+
+                        updateItemCollection();
                         new Thread(new ClientResponseHandler("clientRequest", selected.getCart(), false, clientSocket)).start();
 
                     } else {
@@ -188,10 +199,8 @@ public class Server {
 
                             new Thread(new ClientResponseHandler("dbRequest", null, (available > 0), clientSocket)).start();
                         }
+
                     }
-
-                    System.out.println("updated catalog should be: " + catalog.toString());
-
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -211,5 +220,12 @@ public class Server {
         }
         return null;
     }
+
+    private static void updateItemCollection() {
+        itemsCollection.deleteMany(new Document());
+        itemsCollection.insertMany(catalog);
+    }
+
+
 
 }

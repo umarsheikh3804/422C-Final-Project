@@ -22,6 +22,8 @@ public class Item implements Serializable {
     private String isbn;
     private String summary;
 
+    public Item() {}
+
 
 //    need to add unique ID, in case of multiple copes do later
     public Item(String itemType, String title, String author, int pages, String summary, String image) {
@@ -73,13 +75,15 @@ public class Item implements Serializable {
 
     public String getAuthor() {return this.author;}
 
+    public String getImage() {return this.image; }
+
     public String getIsbn() {return this.isbn;}
 
-//    public int getPages() {return this.pages;}
-//
-//    public String getSummary() {return this.summary;}
-//
-//    public String getItemType() {return this.itemType;}
+    public int getPages() {return this.pages;}
+
+    public String getSummary() {return this.summary;}
+
+    public String getItemType() {return this.itemType;}
 
     @Override
     public boolean equals(Object other) {
