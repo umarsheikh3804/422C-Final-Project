@@ -76,20 +76,20 @@
             <Font name="Calibri" size="12.0" />
          </font>
       </Button>
-      <Label layoutX="444.0" layoutY="136.0" text="Signup">
+      <Label layoutX="444.0" layoutY="131.0" text="Signup">
          <font>
             <Font name="Calibri Bold" size="24.0" />
          </font>
       </Label>
-      <TextField fx:id="username1" layoutX="358.0" layoutY="182.0" prefHeight="25.0" prefWidth="239.0" promptText="Username" />
-      <TextField fx:id="confirmPassword" layoutX="358.0" layoutY="281.0" prefHeight="25.0" prefWidth="239.0" promptText="Confirm password" />
-      <TextField fx:id="password2" layoutX="358.0" layoutY="232.0" prefHeight="25.0" prefWidth="239.0" promptText="Create Password" />
+      <TextField fx:id="username1" layoutX="358.0" layoutY="174.0" prefHeight="25.0" prefWidth="239.0" promptText="Username" />
+      <TextField fx:id="confirmPassword" layoutX="358.0" layoutY="260.0" prefHeight="25.0" prefWidth="239.0" promptText="Confirm password" />
+      <TextField fx:id="password2" layoutX="358.0" layoutY="215.0" prefHeight="25.0" prefWidth="239.0" promptText="Create Password" />
       <Label fx:id="invalidLogin" layoutX="94.0" layoutY="175.0" prefHeight="14.0" prefWidth="156.0" text="Invalid username or password" textFill="RED" visible="false">
          <font>
             <Font name="Calibri" size="11.0" />
          </font>
       </Label>
-      <Label fx:id="length" layoutX="380.0" layoutY="258.0" prefHeight="14.0" prefWidth="239.0" text="Your password must be atleast 8 characters" textFill="RED" visible="false">
+      <Label fx:id="length" layoutX="359.0" layoutY="298.0" prefHeight="14.0" prefWidth="239.0" text="Your password must be atleast 8 characters" textFill="RED" visible="false">
          <font>
             <Font name="Calibri" size="11.0" />
          </font>
@@ -100,5 +100,10 @@
          </font>
       </Label>
       <Hyperlink fx:id="forgotLabel" layoutX="121.0" layoutY="269.0" onAction="#forgotPassword" text="Forgot password?" />
+      <Label fx:id="strengthMessage" layoutX="361.0" layoutY="287.0" prefHeight="36.0" prefWidth="227.0" text="Password needs upper- and lowercase letters and digits" textAlignment="CENTER" textFill="RED" visible="false" wrapText="true">
+         <font>
+            <Font name="Calibri" size="10.0" />
+         </font>
+      </Label>
    </AnchorPane>
 </VBox>

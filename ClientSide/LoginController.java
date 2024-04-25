@@ -38,6 +38,8 @@ public class LoginController {
     public Label invalidLogin;
     public Label forgotPassword;
     public Hyperlink forgotLabel;
+    public Label strengthMessage;
+    public Label pswdMatch1;
     private Stage stage;
     private static ObservableList<Item> log = FXCollections.observableArrayList();
 
@@ -61,52 +63,59 @@ public class LoginController {
 
     @FXML
     public void signupPressed(ActionEvent actionEvent) {
-        if (password2.getText().length() >= 8) {
-            if (password2.getText().equals(confirmPassword.getText())) {
-                try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
-                    Parent root = loader.load();
-                    HomeController controller = loader.getController();
-                    System.out.println(toServer == null);
-                    controller.init(stage, log, toServer, fromServer);
-                    controller.displayClientSide();
-
-                    Scene scene = new Scene(root);
-                    stage.setScene(scene);
-                    stage.show();
-
-                    MessageDigest md = MessageDigest.getInstance("SHA-256");
-                    md.update(password2.getText().getBytes());
-//            digest bytes w/algorithm and return hashed bytes
-                    byte[] hashedBytes = md.digest();
-
-                    StringBuilder sb = new StringBuilder();
-                    for (byte b : hashedBytes) {
-                        sb.append(String.format("%02x", b));
-                    }
-
-                    toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), false));
-                    toServer.flush();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                length.setVisible(false);
-                pswdMatch.setVisible(true);
-                player1.play();
-                player1.setOnEndOfMedia(() -> {
-                    player1.stop();
-                });
-            }
-
-        } else {
+        if (password2.getText().length() < 8) {
             pswdMatch.setVisible(false);
+            strengthMessage.setVisible(false);
             length.setVisible(true);
             player1.play();
             player1.setOnEndOfMedia(() -> {
                 player1.stop();
             });
+        } else if (!strengthTest(password2.getText())) {
+            pswdMatch.setVisible(false);
+            length.setVisible(false);
+            strengthMessage.setVisible(true);
+            player1.play();
+            player1.setOnEndOfMedia(() -> {
+                player1.stop();
+            });
+        } else if (!password2.getText().equals(confirmPassword.getText())) {
+            length.setVisible(false);
+            strengthMessage.setVisible(false);
+            pswdMatch.setVisible(true);
+            player1.play();
+            player1.setOnEndOfMedia(() -> {
+                player1.stop();
+            });
+        } else {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
+                Parent root = loader.load();
+                HomeController controller = loader.getController();
+                System.out.println(toServer == null);
+                controller.init(stage, log, toServer, fromServer);
+                controller.displayClientSide();
+
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                stage.show();
+
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                md.update(password2.getText().getBytes());
+//            digest bytes w/algorithm and return hashed bytes
+                byte[] hashedBytes = md.digest();
+
+                StringBuilder sb = new StringBuilder();
+                for (byte b : hashedBytes) {
+                    sb.append(String.format("%02x", b));
+                }
+
+                toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), false));
+                toServer.flush();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
 
@@ -174,8 +183,23 @@ public class LoginController {
     }
 
 
-    @FXML
-    public void forgotPassword(ActionEvent actionEvent) {
+    private boolean strengthTest(String input) {
+        boolean containsDigit = false;
+        boolean containsUpper = false;
+        boolean containsLower = false;
+        for (int i = 0; i < input.length(); i++) {
+            if (Character.isLowerCase(input.charAt(i))) {
+                containsLower = true;
+            } else if (Character.isUpperCase(input.charAt(i))) {
+                containsUpper = true;
+            } else if (Character.isDigit(input.charAt(i))) {
+                containsDigit = true;
+            }
+        }
 
+        return containsDigit && containsLower && containsUpper;
+    }
+
+    public void forgotPassword(ActionEvent actionEvent) {
     }
 }
