@@ -21,6 +21,7 @@ import java.security.MessageDigest;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class LoginController {
 
@@ -149,8 +150,12 @@ public class LoginController {
 //                        successful login
                         if (id != null) {
                             System.out.println(response.getId());
+                            cart.clear();
+                            log.clear();
                             cart.addAll(response.getCart());
-//                            System.out.println(Arrays.toString(cart.toArray()));
+                            log.addAll(response.getCatalog());
+                            System.out.println(Arrays.toString(cart.toArray()));
+                            System.out.println(Arrays.toString(log.toArray()));
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
                             Parent root = loader.load();
                             HomeController controller = loader.getController();

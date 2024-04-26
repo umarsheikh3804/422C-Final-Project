@@ -58,7 +58,6 @@ public class Server {
         mongo = MongoClients.create(URI);
         database = mongo.getDatabase(DB);
         collection = database.getCollection(COLLECTION);
-//        collection.deleteMany(new Document());
 
         CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
         CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
@@ -192,6 +191,7 @@ public class Server {
                         }
                         System.out.println(Arrays.toString(newList.toArray()));
 
+                        System.out.println(selected.getId());
 
                         collection.updateOne(
                                 Filters.eq("_id", new ObjectId(selected.getId())),
@@ -201,7 +201,7 @@ public class Server {
                         );
 //
 
-                        updateItemCollection();
+//                        updateItemCollection();
                         new Thread(new ClientResponseHandler("clientRequest", selected.getCart(), null, clientSocket)).start();
 
                     } else {
@@ -230,17 +230,18 @@ public class Server {
                                 Document document = (Document) cursor.next();
                                 id = document.get("_id", ObjectId.class).toHexString();
                                 System.out.println(id);
-                                ArrayList<String> isbns = document.get("checkedOutBooks", ArrayList.class);
+                                ArrayList isbns = document.get("checkedOutBooks", ArrayList.class);
                                 System.out.println(Arrays.toString(isbns.toArray()));
                                 if (!isbns.isEmpty()) {
-                                    for (String isbn : isbns) {
-                                        MongoCursor itemCursor = itemsCollection.find(Filters.eq("isbn", isbn)).cursor();
-                                        Item toAdd = (Item)(itemCursor.next());
+                                    for (Object isbn : isbns) {
+                                        System.out.println((String)(isbn));
+                                        Item toAdd = itemsCollection.find(Filters.eq("isbn", isbn)).first();
                                         System.out.println(toAdd);
                                         cart.add(toAdd);
                                     }
                                 }
                             }
+                            System.out.println(Arrays.toString(catalog.toArray()));
 
                             new Thread(new ClientResponseHandler("dbRequest", cart, id, clientSocket)).start();
                         }

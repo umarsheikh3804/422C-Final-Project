@@ -85,6 +85,35 @@ public class Item implements Serializable {
 
     public String getItemType() {return this.itemType;}
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
+    }
+
+    public void setItemType(String itemType) {
+        this.itemType = itemType;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+
     @Override
     public boolean equals(Object other) {
         if (other instanceof Item) {
