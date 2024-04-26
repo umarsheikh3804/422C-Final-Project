@@ -41,6 +41,7 @@ public class LoginController {
 //    public Label forgotPassword;
     public Hyperlink forgotLabel;
     public Label strengthMessage;
+    public Label usernameExists;
     private Stage stage;
     private ObservableList<Item> log = FXCollections.observableArrayList();
     private ObservableList<Item> cart = FXCollections.observableArrayList();;
@@ -72,6 +73,7 @@ public class LoginController {
             pswdMatch.setVisible(false);
             strengthMessage.setVisible(false);
             length.setVisible(true);
+            usernameExists.setVisible(false);
         } else if (!strengthTest(password2.getText())) {
             player1.play();
             player1.setOnEndOfMedia(() -> {
@@ -80,6 +82,7 @@ public class LoginController {
             pswdMatch.setVisible(false);
             length.setVisible(false);
             strengthMessage.setVisible(true);
+            usernameExists.setVisible(false);
         } else if (!password2.getText().equals(confirmPassword.getText())) {
             player1.play();
             player1.setOnEndOfMedia(() -> {
@@ -88,18 +91,9 @@ public class LoginController {
             length.setVisible(false);
             strengthMessage.setVisible(false);
             pswdMatch.setVisible(true);
+            usernameExists.setVisible(false);
         } else {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
-                Parent root = loader.load();
-                HomeController controller = loader.getController();
-                System.out.println(toServer == null);
-                controller.init(stage, log, cart, toServer, fromServer, null);
-                controller.displayClientSide();
-
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-                stage.show();
 
                 MessageDigest md = MessageDigest.getInstance("SHA-256");
                 md.update(password2.getText().getBytes());
@@ -113,6 +107,50 @@ public class LoginController {
 
                 toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), null));
                 toServer.flush();
+
+                Thread dbResponseHandler = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Request response = null;
+                        try {
+                            response = (Request) (fromServer.readObject());
+                            String id = response.getId();
+                            System.out.println(id);
+                            if (id != null) {
+                                log.addAll(response.getCatalog());
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
+                                Parent root = loader.load();
+                                HomeController controller = loader.getController();
+                                controller.init(stage, log, cart, toServer, fromServer, id);
+                                controller.displayClientSide();
+
+                                Platform.runLater(() -> {
+                                    System.out.println("trying to switch");
+                                    Scene scene = new Scene(root);
+                                    stage.setScene(scene);
+                                    stage.show();
+                                    pswdMatch.setVisible(false);
+                                    strengthMessage.setVisible(false);
+                                    length.setVisible(false);
+                                    usernameExists.setVisible(false);
+                                });
+                            } else {
+                                player1.play();
+                                player1.setOnEndOfMedia(() -> {
+                                    player1.stop();
+                                });
+                                Platform.runLater(() -> {
+                                    usernameExists.setVisible(true);
+                                });
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                dbResponseHandler.start();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -161,7 +199,6 @@ public class LoginController {
                             HomeController controller = loader.getController();
                             controller.init(stage, log, cart, toServer, fromServer, id);
                             controller.displayClientSide();
-//                            if login success, load cart
 
                             Platform.runLater(() -> {
                                 Scene scene = new Scene(root);

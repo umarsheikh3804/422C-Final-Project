@@ -52,25 +52,25 @@ public class Client extends Application {
             toServer = new ObjectOutputStream(socket.getOutputStream());
             fromServer = new ObjectInputStream(socket.getInputStream());
 
-            Thread readerThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-//                        loaded catalog/updated catalog sent from server
-//                        have to take into account case where server is running and client is shut down
-                        ArrayList<Item> catalog = ((Request) (fromServer.readObject())).getCatalog();
-                        System.out.println(Arrays.toString(catalog.toArray()));
-                        catalogHolder[0] = catalog;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        System.out.println("Populated catalog");
-
-                    }
-                }
-            });
-
-            readerThread.start();
+//            Thread readerThread = new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+////                        loaded catalog/updated catalog sent from server
+////                        have to take into account case where server is running and client is shut down
+//                        ArrayList<Item> catalog = ((Request) (fromServer.readObject())).getCatalog();
+//                        System.out.println(Arrays.toString(catalog.toArray()));
+//                        catalogHolder[0] = catalog;
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    } finally {
+//                        System.out.println("Populated catalog");
+//
+//                    }
+//                }
+//            });
+//
+//            readerThread.start();
 
         } catch (IOException ioe) {
             ioe.printStackTrace();

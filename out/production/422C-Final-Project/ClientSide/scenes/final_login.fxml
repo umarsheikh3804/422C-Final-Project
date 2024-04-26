@@ -105,5 +105,10 @@
             <Font name="Calibri" size="10.0" />
          </font>
       </Label>
+      <Label fx:id="usernameExists" layoutX="416.0" layoutY="198.0" prefHeight="14.0" prefWidth="112.0" text="Username already exists" textFill="RED" visible="false">
+         <font>
+            <Font name="Calibri" size="11.0" />
+         </font>
+      </Label>
    </AnchorPane>
 </VBox>

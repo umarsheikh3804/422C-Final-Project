@@ -79,10 +79,10 @@ public class Server {
 //                don't want to use multiple outputstreams for same socket
                 sockets.put(clientSocket, new ObjectOutputStream(clientSocket.getOutputStream()));
                 System.out.println("incoming transmission");
-                Thread res = new Thread(new ClientResponseHandler());
+//                Thread res = new Thread(new ClientResponseHandler());
                 Thread req = new Thread(new ClientRequestHandler(clientSocket));
 
-                res.start();
+//                res.start();
                 req.start();
 
             }
@@ -182,9 +182,6 @@ public class Server {
                             }
                         }
 
-//                        System.out.println(selected.getId());
-//                        Document filter = new Document("_id", selected.getId());
-
                         ArrayList<String> newList = new ArrayList<String>();
                         for (Item i : selected.getCart()) {
                             newList.add(i.getIsbn());
@@ -205,15 +202,27 @@ public class Server {
                         new Thread(new ClientResponseHandler("clientRequest", selected.getCart(), null, clientSocket)).start();
 
                     } else {
+                        String id = null;
+                        ArrayList<Item> cart = new ArrayList<>();
                         DBRequest dbRequest = (DBRequest) (request);
                         if (dbRequest.getType().equals("addUser")) {
-                            Document userDocument = new Document()
-                                    .append("username", dbRequest.getUsername())
-                                    .append("password", dbRequest.getPassword())
-                                    .append("checkedOutBooks", new ArrayList<String>());
-                            // Set checked out books and other details as needed
-                            collection.insertOne(userDocument);
-                            System.out.println("User added successfully!");
+                            Document query = new Document("username", dbRequest.getUsername());
+                            MongoCursor cursor = collection.find(query).cursor();
+                            int available = cursor.available();
+
+                            if (available == 0) {
+                                Document userDocument = new Document()
+                                        .append("username", dbRequest.getUsername())
+                                        .append("password", dbRequest.getPassword())
+                                        .append("checkedOutBooks", new ArrayList<String>());
+                                // Set checked out books and other details as needed
+                                collection.insertOne(userDocument);
+//                            get id
+                                id = collection.find(userDocument).first().get("_id", ObjectId.class).toString();
+                                System.out.println("User added successfully!");
+                            } else {
+                                id = null;
+                            }
                         }
 
                         if (dbRequest.getType().equals("check")) {
@@ -224,8 +233,6 @@ public class Server {
                             boolean found = (available > 0);
 
 //                            gets cart for associated username and password and sends it back to client
-                            String id = null;
-                            ArrayList<Item> cart = new ArrayList<>();
                             if (found) {
                                 Document document = (Document) cursor.next();
                                 id = document.get("_id", ObjectId.class).toHexString();
@@ -243,9 +250,9 @@ public class Server {
                             }
                             System.out.println(Arrays.toString(catalog.toArray()));
 
-                            new Thread(new ClientResponseHandler("dbRequest", cart, id, clientSocket)).start();
-                        }
 
+                        }
+                        new Thread(new ClientResponseHandler("dbRequest", cart, id, clientSocket)).start();
                     }
                 }
             } catch (Exception e) {
