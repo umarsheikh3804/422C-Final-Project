@@ -10,13 +10,15 @@ public class Request implements Serializable {
 
     private String username;
     private String password;
+    private String id;
 
-    public Request(ArrayList<Item> catalog, ArrayList<Item> cart, String type) {
+    public Request(ArrayList<Item> catalog, ArrayList<Item> cart, String type, String id) {
         this.catalog = catalog;
         this.cart = cart;
         this.type = type;
-        this.username = username;
-        this.password = password;
+        this.id = id;
+//        this.username = username;
+//        this.password = password;
     }
 
     public ArrayList<Item> getCatalog() {
@@ -31,11 +33,6 @@ public class Request implements Serializable {
         return this.type;
     }
 
-    public String getUsername() {
-        return username;
-    }
+    public String getId() {return this.id; }
 
-    public String getPassword() {
-        return password;
-    }
 }

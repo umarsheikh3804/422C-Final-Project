@@ -1,21 +1,20 @@
 package Common;
 
-import ServerSide.Server;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class DBRequest implements Serializable {
 
     private String type;
     private String username;
     private String password;
-    private Boolean result;
+    private String result;
 
-    public DBRequest(String type, String username, String password, Boolean result) {
+    public DBRequest(String type, String username, String password, String result) {
         this.type = type;
         this.username = username;
         this.password = password;
-        this.result =result;
+        this.result = result;
     }
 
     public String getPassword() {
@@ -30,7 +29,9 @@ public class DBRequest implements Serializable {
         return type;
     }
 
-    public Boolean getResult() {
+    public String getResult() {
         return result;
     }
+
+//    public ArrayList<Item> getCart() {return cart;}
 }

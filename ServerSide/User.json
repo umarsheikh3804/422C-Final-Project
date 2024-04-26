@@ -4,10 +4,7 @@
 
   "checkedOutItems": [
     {
-      "title": "string",
-      "author": "string",
-      "checkoutDate": "date",
-      "returnDate": "date"
+      "isbn": "string"
     }
   ]
 }

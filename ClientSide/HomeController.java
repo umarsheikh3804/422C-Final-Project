@@ -3,7 +3,6 @@ package ClientSide;
 import Common.Item;
 import Common.Request;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
@@ -34,19 +33,23 @@ public class HomeController {
     public TextField search_text;
     private Stage stage;
     private ObservableList<Item> log;
-    private static ObservableList<Item> cart = FXCollections.observableArrayList();;
+    private ObservableList<Item> cart;
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
+    private String id;
 
     private final Object lock = new Object();
 
-    public void init(Stage primaryStage, ObservableList<Item> log, ObjectOutputStream toServer, ObjectInputStream fromServer) {
+    public void init(Stage primaryStage, ObservableList<Item> log, ObservableList<Item> cart, ObjectOutputStream toServer, ObjectInputStream fromServer, String id) {
         this.stage = primaryStage;
         this.log = log;
+        this.cart = cart;
         this.listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.fromServer = fromServer;
         this.toServer = toServer;
+//        used id based on the login information
+        this.id = id;
     }
 
     public void displayClientSide() {
@@ -59,9 +62,6 @@ public class HomeController {
 
         // Set the items for the TableView
         tableView.setItems(log);
-
-//        TableColumn<Item, String> isbnColumn = new TableColumn<>("isbn");
-//        isbnColumn.setCellValueFactory(log -> log.getValue().isbnProperty());
 
         TableColumn<Item, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(log -> log.getValue().titleProperty());
@@ -92,7 +92,7 @@ public class HomeController {
         ArrayList<Item> toSend = new ArrayList<>(selected);
         toServer.reset();
 
-        toServer.writeObject(new Request(toSend, new ArrayList<>(cart), "checkout"));
+        toServer.writeObject(new Request(toSend, new ArrayList<>(cart), "checkout", id));
         toServer.flush();
 
         Thread t = new Thread(new ServerResponseHandler());
@@ -104,7 +104,7 @@ public class HomeController {
         ObservableList<Item> selected = listView.getSelectionModel().getSelectedItems();
         toServer.reset();
 
-        toServer.writeObject(new Request(new ArrayList<>(selected), new ArrayList<>(cart), "return"));
+        toServer.writeObject(new Request(new ArrayList<>(selected), new ArrayList<>(cart), "return", id));
         toServer.flush();
 
         for (Item s : selected) {

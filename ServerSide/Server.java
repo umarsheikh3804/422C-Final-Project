@@ -6,6 +6,7 @@ import Common.Request;
 import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import org.bson.BsonDocument;
 import org.bson.BsonInt64;
 import org.bson.Document;
@@ -14,6 +15,7 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -28,6 +30,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.bson.types.ObjectId;
 
 public class Server {
 
@@ -55,6 +58,7 @@ public class Server {
         mongo = MongoClients.create(URI);
         database = mongo.getDatabase(DB);
         collection = database.getCollection(COLLECTION);
+//        collection.deleteMany(new Document());
 
         CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
         CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
@@ -92,34 +96,33 @@ public class Server {
 
         private final String response;
         private ArrayList<Item> updatedCart;
-        private boolean result;
+        private String id;
         private Socket clientSocket;
 
         ClientResponseHandler() {
             this.response = "";
         }
-        ClientResponseHandler(String response, ArrayList<Item> updatedCart, boolean result, Socket clientSocket) {
+        ClientResponseHandler(String response, ArrayList<Item> updatedCart, String id, Socket clientSocket) {
             this.response = response;
             this.updatedCart = updatedCart;
-            this.result = result;
+            this.id = id;
             this.clientSocket = clientSocket;
 
         }
         public void run() {
             try {
-//                we may need to put a lock here since you don't want to send the 2 different catalogs to the same client
                 synchronized (lock1) {
                     if (response.equals("dbRequest")) {
 //                        send to dbHandler
                         ObjectOutputStream oos = sockets.get(clientSocket);
                         oos.reset();
-                        oos.writeObject(new DBRequest(response, null, null, result));
+                        oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, id));
                         oos.flush();
                     } else {
                         for (Socket s : sockets.keySet()) {
                             ObjectOutputStream oos = sockets.get(s);
                             oos.reset();
-                            oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response));
+                            oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, null));
                             oos.flush();
                         }
                     }
@@ -152,6 +155,9 @@ public class Server {
                     if (request instanceof Request) {
                         Request selected = (Request) (request);
 
+                        System.out.println(selected.getId());
+//                        need to get cart and in database to update for use
+
                         if (selected.getType().equals("checkout")) {
                             System.out.println("got checkout request");
                             for (Object s : selected.getCatalog()) {
@@ -177,8 +183,26 @@ public class Server {
                             }
                         }
 
+//                        System.out.println(selected.getId());
+//                        Document filter = new Document("_id", selected.getId());
+
+                        ArrayList<String> newList = new ArrayList<String>();
+                        for (Item i : selected.getCart()) {
+                            newList.add(i.getIsbn());
+                        }
+                        System.out.println(Arrays.toString(newList.toArray()));
+
+
+                        collection.updateOne(
+                                Filters.eq("_id", new ObjectId(selected.getId())),
+                                Updates.combine(
+                                        Updates.set("checkedOutBooks", newList)
+                                )
+                        );
+//
+
                         updateItemCollection();
-                        new Thread(new ClientResponseHandler("clientRequest", selected.getCart(), false, clientSocket)).start();
+                        new Thread(new ClientResponseHandler("clientRequest", selected.getCart(), null, clientSocket)).start();
 
                     } else {
                         DBRequest dbRequest = (DBRequest) (request);
@@ -186,7 +210,7 @@ public class Server {
                             Document userDocument = new Document()
                                     .append("username", dbRequest.getUsername())
                                     .append("password", dbRequest.getPassword())
-                                    .append("checkedOutBooks", null);
+                                    .append("checkedOutBooks", new ArrayList<String>());
                             // Set checked out books and other details as needed
                             collection.insertOne(userDocument);
                             System.out.println("User added successfully!");
@@ -195,9 +219,30 @@ public class Server {
                         if (dbRequest.getType().equals("check")) {
                             System.out.println("gets here");
                             Document query = new Document("username", dbRequest.getUsername()).append("password", dbRequest.getPassword());
-                            int available = collection.find(query).cursor().available();
+                            MongoCursor cursor = collection.find(query).cursor();
+                            int available = cursor.available();
+                            boolean found = (available > 0);
 
-                            new Thread(new ClientResponseHandler("dbRequest", null, (available > 0), clientSocket)).start();
+//                            gets cart for associated username and password and sends it back to client
+                            String id = null;
+                            ArrayList<Item> cart = new ArrayList<>();
+                            if (found) {
+                                Document document = (Document) cursor.next();
+                                id = document.get("_id", ObjectId.class).toHexString();
+                                System.out.println(id);
+                                ArrayList<String> isbns = document.get("checkedOutBooks", ArrayList.class);
+                                System.out.println(Arrays.toString(isbns.toArray()));
+                                if (!isbns.isEmpty()) {
+                                    for (String isbn : isbns) {
+                                        MongoCursor itemCursor = itemsCollection.find(Filters.eq("isbn", isbn)).cursor();
+                                        Item toAdd = (Item)(itemCursor.next());
+                                        System.out.println(toAdd);
+                                        cart.add(toAdd);
+                                    }
+                                }
+                            }
+
+                            new Thread(new ClientResponseHandler("dbRequest", cart, id, clientSocket)).start();
                         }
 
                     }

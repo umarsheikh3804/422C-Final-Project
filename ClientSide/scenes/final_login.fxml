@@ -82,8 +82,8 @@
          </font>
       </Label>
       <TextField fx:id="username1" layoutX="358.0" layoutY="174.0" prefHeight="25.0" prefWidth="239.0" promptText="Username" />
-      <TextField fx:id="confirmPassword" layoutX="358.0" layoutY="260.0" prefHeight="25.0" prefWidth="239.0" promptText="Confirm password" />
-      <TextField fx:id="password2" layoutX="358.0" layoutY="215.0" prefHeight="25.0" prefWidth="239.0" promptText="Create Password" />
+      <PasswordField fx:id="confirmPassword" layoutX="358.0" layoutY="260.0" prefHeight="25.0" prefWidth="239.0" promptText="Confirm password" />
+      <PasswordField fx:id="password2" layoutX="358.0" layoutY="215.0" prefHeight="25.0" prefWidth="239.0" promptText="Create Password" />
       <Label fx:id="invalidLogin" layoutX="94.0" layoutY="175.0" prefHeight="14.0" prefWidth="156.0" text="Invalid username or password" textFill="RED" visible="false">
          <font>
             <Font name="Calibri" size="11.0" />

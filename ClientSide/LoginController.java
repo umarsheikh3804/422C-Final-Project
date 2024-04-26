@@ -2,6 +2,7 @@ package ClientSide;
 
 import Common.DBRequest;
 import Common.Item;
+import Common.Request;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,13 +37,12 @@ public class LoginController {
     public Label pswdMatch;
     public Label length;
     public Label invalidLogin;
-    public Label forgotPassword;
+//    public Label forgotPassword;
     public Hyperlink forgotLabel;
     public Label strengthMessage;
-    public Label pswdMatch1;
     private Stage stage;
-    private static ObservableList<Item> log = FXCollections.observableArrayList();
-
+    private ObservableList<Item> log = FXCollections.observableArrayList();
+    private ObservableList<Item> cart = FXCollections.observableArrayList();;
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
 
@@ -93,7 +93,7 @@ public class LoginController {
                 Parent root = loader.load();
                 HomeController controller = loader.getController();
                 System.out.println(toServer == null);
-                controller.init(stage, log, toServer, fromServer);
+                controller.init(stage, log, cart, toServer, fromServer, null);
                 controller.displayClientSide();
 
                 Scene scene = new Scene(root);
@@ -110,7 +110,7 @@ public class LoginController {
                     sb.append(String.format("%02x", b));
                 }
 
-                toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), false));
+                toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), null));
                 toServer.flush();
 
             } catch (Exception e) {
@@ -137,21 +137,26 @@ public class LoginController {
             System.out.println(username.getText());
             System.out.println(sb.toString());
 
-            toServer.writeObject(new DBRequest("check", username.getText(), sb.toString(), false));
+            toServer.writeObject(new DBRequest("check", username.getText(), sb.toString(), null));
             toServer.flush();
             Thread dbResponseHandler = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    DBRequest response = null;
+                    Request response = null;
                     try {
-                        response = (DBRequest) (fromServer.readObject());
-                        if (response.getResult()) {
-                            System.out.println(response.getResult());
+                        response = (Request) (fromServer.readObject());
+                        String id = response.getId();
+//                        successful login
+                        if (id != null) {
+                            System.out.println(response.getId());
+                            cart.addAll(response.getCart());
+//                            System.out.println(Arrays.toString(cart.toArray()));
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
                             Parent root = loader.load();
                             HomeController controller = loader.getController();
-                            controller.init(stage, log, toServer, fromServer);
+                            controller.init(stage, log, cart, toServer, fromServer, id);
                             controller.displayClientSide();
+//                            if login success, load cart
 
                             Platform.runLater(() -> {
                                 Scene scene = new Scene(root);
