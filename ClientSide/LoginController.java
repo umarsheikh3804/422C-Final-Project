@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LoginController {
-
     @FXML
     public Button loginButton;
     @FXML
@@ -38,7 +37,6 @@ public class LoginController {
     public Label pswdMatch;
     public Label length;
     public Label invalidLogin;
-//    public Label forgotPassword;
     public Hyperlink forgotLabel;
     public Label strengthMessage;
     public Label usernameExists;
@@ -55,12 +53,6 @@ public class LoginController {
         this.stage = primaryStage;
         this.toServer = toServer;
         this.fromServer = fromServer;
-//        log.addAll(items);
-
-    }
-
-    public void populateCatalog(ArrayList<Item> items) {
-        log.addAll(items);
     }
 
     @FXML
@@ -115,7 +107,6 @@ public class LoginController {
                         try {
                             response = (Request) (fromServer.readObject());
                             String id = response.getId();
-                            System.out.println(id);
                             if (id != null) {
                                 log.addAll(response.getCatalog());
                                 FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
@@ -125,7 +116,6 @@ public class LoginController {
                                 controller.displayClientSide();
 
                                 Platform.runLater(() -> {
-                                    System.out.println("trying to switch");
                                     Scene scene = new Scene(root);
                                     stage.setScene(scene);
                                     stage.show();
@@ -173,9 +163,6 @@ public class LoginController {
                 sb.append(String.format("%02x", b));
             }
 
-            System.out.println(username.getText());
-            System.out.println(sb.toString());
-
             toServer.writeObject(new DBRequest("check", username.getText(), sb.toString(), null));
             toServer.flush();
             Thread dbResponseHandler = new Thread(new Runnable() {
@@ -192,8 +179,6 @@ public class LoginController {
                             log.clear();
                             cart.addAll(response.getCart());
                             log.addAll(response.getCatalog());
-                            System.out.println(Arrays.toString(cart.toArray()));
-                            System.out.println(Arrays.toString(log.toArray()));
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
                             Parent root = loader.load();
                             HomeController controller = loader.getController();

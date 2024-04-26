@@ -48,19 +48,15 @@ public class HomeController {
         this.tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.fromServer = fromServer;
         this.toServer = toServer;
-//        used id based on the login information
         this.id = id;
     }
 
     public void displayClientSide() {
 
-//        actually need to pull
         listView.getItems().clear();
         listView.setItems(cart);
 
         tableView.getColumns().clear();
-
-        // Set the items for the TableView
         tableView.setItems(log);
 
         TableColumn<Item, String> titleColumn = new TableColumn<>("Title");
@@ -137,15 +133,11 @@ public class HomeController {
     @FXML
     public void search_clicked(ActionEvent actionEvent) {
         tableView.setItems(log);
-        System.out.println(search_text.getText());
         String search = search_text.getText().toLowerCase().trim();
-        System.out.println(search);
-        System.out.println(Arrays.toString(tableView.getItems().toArray()));
         FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
                 item.getTitle().toLowerCase().contains(search) || item.getAuthor().toLowerCase().contains(search));
 
         tableView.setItems(filteredList);
-        System.out.println(Arrays.toString(log.toArray()));
     }
 
     class ServerResponseHandler implements Runnable {

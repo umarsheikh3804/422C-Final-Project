@@ -3,19 +3,14 @@ import java.io.*;
 import Common.DBRequest;
 import Common.Item;
 import Common.Request;
-import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
-import org.bson.BsonDocument;
-import org.bson.BsonInt64;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import org.bson.conversions.Bson;
 
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -38,20 +33,15 @@ public class Server {
     private final Object lock1 = new Object();
     private final Object lock2 = new Object();
     Map<Socket, ObjectOutputStream> sockets = new HashMap<>();
-
     private static MongoClient mongo;
     private static MongoDatabase database;
     private static MongoCollection<Document> collection;
     private static final String URI = "mongodb+srv://umarsheikh4804:u1Q6b5NZfcgCICu4@cluster0.w2ijtfr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
     private static final String DB = "Users";
     private static final String COLLECTION = "library_members";
-
     private static MongoCollection<Item> itemsCollection;
     private static final String COLLECTION2 = "Catalog";
-
     private ClientSession session;
-
-
 
     public static void main(String[] args) throws MalformedURLException, FileNotFoundException {
 
@@ -67,7 +57,13 @@ public class Server {
         catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "ServerSide/images/CR.jpg"));
         catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "ServerSide/images/HP.jpg"));
 
-        updateItemCollection();
+        if (itemsCollection.countDocuments() > 0) {
+            itemsCollection.deleteMany(new Document());
+        }
+        if (!catalog.isEmpty()) {
+            itemsCollection.insertMany(catalog);
+        }
+
         new Server().setupNetworking();
     }
 
@@ -76,13 +72,10 @@ public class Server {
             ServerSocket server = new ServerSocket(1056);
             while (true) {
                 Socket clientSocket = server.accept();
-//                don't want to use multiple outputstreams for same socket
+//                don't want to use multiple output streams for same socket
                 sockets.put(clientSocket, new ObjectOutputStream(clientSocket.getOutputStream()));
                 System.out.println("incoming transmission");
-//                Thread res = new Thread(new ClientResponseHandler());
                 Thread req = new Thread(new ClientRequestHandler(clientSocket));
-
-//                res.start();
                 req.start();
 
             }
@@ -97,21 +90,16 @@ public class Server {
         private ArrayList<Item> updatedCart;
         private String id;
         private Socket clientSocket;
-
-        ClientResponseHandler() {
-            this.response = "";
-        }
         ClientResponseHandler(String response, ArrayList<Item> updatedCart, String id, Socket clientSocket) {
             this.response = response;
             this.updatedCart = updatedCart;
             this.id = id;
             this.clientSocket = clientSocket;
-
         }
         public void run() {
             try {
                 synchronized (lock1) {
-                    if (response.equals("dbRequest")) {
+                    if (response.equals("dbResponse")) {
 //                        send to dbHandler
                         ObjectOutputStream oos = sockets.get(clientSocket);
                         oos.reset();
@@ -125,7 +113,6 @@ public class Server {
                             oos.flush();
                         }
                     }
-
                     System.out.println("sending updated catalog back to client");
                 }
 
@@ -137,35 +124,24 @@ public class Server {
 
     class ClientRequestHandler implements Runnable {
         private final Socket clientSocket;
-
         ClientRequestHandler(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
-
         public void run() {
             try {
                 session = mongo.startSession();
                 session.startTransaction();
-//                MongoDatabase database = mongoClient.getDatabase("Users");
-//                need to implement backend server logic to update catalog based on items checked out and borrowed
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
                 while (true) {
                     Object request = ois.readObject();
                     if (request instanceof Request) {
                         Request selected = (Request) (request);
 
-                        System.out.println(selected.getId());
-//                        need to get cart and in database to update for use
-
                         if (selected.getType().equals("checkout")) {
-                            System.out.println("got checkout request");
                             for (Object s : selected.getCatalog()) {
                                 synchronized (lock1) {
                                     Item borrowItem = (Item) (s);
-//                                doesn't actually remove right here
-                                    System.out.println(borrowItem);
                                     catalog.remove(getEqualItem(catalog, borrowItem));
-                                    System.out.println("adding book to cart: " + borrowItem);
                                     selected.getCart().add(borrowItem);
                                 }
                             }
@@ -175,7 +151,6 @@ public class Server {
                             for (Object s : selected.getCatalog()) {
                                 synchronized (lock2) {
                                     Item returnItem = (Item) (s);
-//                                doesn't actually add right here
                                     catalog.add(returnItem);
                                     selected.getCart().remove(getEqualItem(selected.getCart(), returnItem));
                                 }
@@ -186,9 +161,6 @@ public class Server {
                         for (Item i : selected.getCart()) {
                             newList.add(i.getIsbn());
                         }
-                        System.out.println(Arrays.toString(newList.toArray()));
-
-                        System.out.println(selected.getId());
 
                         collection.updateOne(
                                 Filters.eq("_id", new ObjectId(selected.getId())),
@@ -196,10 +168,7 @@ public class Server {
                                         Updates.set("checkedOutBooks", newList)
                                 )
                         );
-//
-
-//                        updateItemCollection();
-                        new Thread(new ClientResponseHandler("clientRequest", selected.getCart(), null, clientSocket)).start();
+                        new Thread(new ClientResponseHandler("clientResponse", selected.getCart(), null, clientSocket)).start();
 
                     } else {
                         String id = null;
@@ -207,7 +176,7 @@ public class Server {
                         DBRequest dbRequest = (DBRequest) (request);
                         if (dbRequest.getType().equals("addUser")) {
                             Document query = new Document("username", dbRequest.getUsername());
-                            MongoCursor cursor = collection.find(query).cursor();
+                            MongoCursor<Document> cursor = collection.find(query).cursor();
                             int available = cursor.available();
 
                             if (available == 0) {
@@ -215,18 +184,12 @@ public class Server {
                                         .append("username", dbRequest.getUsername())
                                         .append("password", dbRequest.getPassword())
                                         .append("checkedOutBooks", new ArrayList<String>());
-                                // Set checked out books and other details as needed
                                 collection.insertOne(userDocument);
-//                            get id
                                 id = collection.find(userDocument).first().get("_id", ObjectId.class).toString();
-                                System.out.println("User added successfully!");
-                            } else {
-                                id = null;
                             }
                         }
 
                         if (dbRequest.getType().equals("check")) {
-                            System.out.println("gets here");
                             Document query = new Document("username", dbRequest.getUsername()).append("password", dbRequest.getPassword());
                             MongoCursor cursor = collection.find(query).cursor();
                             int available = cursor.available();
@@ -236,23 +199,17 @@ public class Server {
                             if (found) {
                                 Document document = (Document) cursor.next();
                                 id = document.get("_id", ObjectId.class).toHexString();
-                                System.out.println(id);
                                 ArrayList isbns = document.get("checkedOutBooks", ArrayList.class);
-                                System.out.println(Arrays.toString(isbns.toArray()));
                                 if (!isbns.isEmpty()) {
                                     for (Object isbn : isbns) {
-                                        System.out.println((String)(isbn));
                                         Item toAdd = itemsCollection.find(Filters.eq("isbn", isbn)).first();
-                                        System.out.println(toAdd);
                                         cart.add(toAdd);
                                     }
                                 }
                             }
-                            System.out.println(Arrays.toString(catalog.toArray()));
-
 
                         }
-                        new Thread(new ClientResponseHandler("dbRequest", cart, id, clientSocket)).start();
+                        new Thread(new ClientResponseHandler("dbResponse", cart, id, clientSocket)).start();
                     }
                 }
             } catch (Exception e) {
@@ -265,24 +222,11 @@ public class Server {
 
     private Item getEqualItem(List<Item> list, Item s) {
         for (Item i : list) {
-            System.out.println(i);
             if (i.equals(s)) {
-                System.out.println("found equal item");
                 return i;
             }
         }
         return null;
     }
-
-    private static void updateItemCollection() {
-        if (itemsCollection.countDocuments() > 0) {
-            itemsCollection.deleteMany(new Document());
-        }
-        if (!catalog.isEmpty()) {
-            itemsCollection.insertMany(catalog);
-        }
-    }
-
-
 
 }

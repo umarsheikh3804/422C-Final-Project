@@ -1,7 +1,6 @@
 package ClientSide;
 
 import Common.Item;
-import Common.Request;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,7 +10,6 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Client extends Application {
 
@@ -25,9 +23,8 @@ public class Client extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        final ArrayList<Item>[] catalogHolder = new ArrayList[]{new ArrayList<>()};
         try {
-            setupNetworking(catalogHolder);
+            setupNetworking();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -37,14 +34,12 @@ public class Client extends Application {
         LoginController controller = loader.getController();
 
         controller.init(primaryStage, toServer, fromServer);
-        controller.populateCatalog(catalogHolder[0]);
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();
-
     }
 
-    private void setupNetworking(ArrayList<Item>[] catalogHolder) {
+    private void setupNetworking() {
         try {
             Socket socket = new Socket(host, 1056);
             System.out.println("Network established");
@@ -52,30 +47,9 @@ public class Client extends Application {
             toServer = new ObjectOutputStream(socket.getOutputStream());
             fromServer = new ObjectInputStream(socket.getInputStream());
 
-//            Thread readerThread = new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-////                        loaded catalog/updated catalog sent from server
-////                        have to take into account case where server is running and client is shut down
-//                        ArrayList<Item> catalog = ((Request) (fromServer.readObject())).getCatalog();
-//                        System.out.println(Arrays.toString(catalog.toArray()));
-//                        catalogHolder[0] = catalog;
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    } finally {
-//                        System.out.println("Populated catalog");
-//
-//                    }
-//                }
-//            });
-//
-//            readerThread.start();
-
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
     }
 
 }
