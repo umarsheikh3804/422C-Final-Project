@@ -9,12 +9,14 @@ public class DBRequest implements Serializable {
     private String username;
     private String password;
     private String result;
+    private String id;
 
-    public DBRequest(String type, String username, String password, String result) {
+    public DBRequest(String type, String username, String password, String id, String result) {
         this.type = type;
         this.username = username;
         this.password = password;
         this.result = result;
+        this.id = id;
     }
 
     public String getPassword() {
@@ -33,5 +35,8 @@ public class DBRequest implements Serializable {
         return result;
     }
 
-//    public ArrayList<Item> getCart() {return cart;}
+    public String getId() {
+        return id;
+    }
+
 }

@@ -22,26 +22,27 @@ public class Item implements Serializable {
     private String isbn;
     private String genre;
 
+    private boolean available;
+
     public Item() {}
 
 
 //    need to add unique ID, in case of multiple copes do later
-    public Item(String itemType, String title, String author, String language, String genre, String image) {
+    public Item(String itemType, String title, String author, String language, String genre, String image, boolean available) {
         this.image = image;
         this.itemType = itemType;
         this.title = title;
         this.author = author;
         this.language = language;
         this.genre= genre;
-        isbn = String.valueOf(current);
+        this.isbn = String.valueOf(current);
         current += 1;
+        this.available = available;
 
     }
 
-//    public StringProperty itemTypeProperty() {
-//        return new SimpleStringProperty(this.itemType);
-//    }
-
+    public boolean getAvailable() {return this.available; }
+    public void setAvailable(boolean available) {this.available = available; }
     public ObservableValue<String> titleProperty() {
         return new SimpleStringProperty(this.title);
     }

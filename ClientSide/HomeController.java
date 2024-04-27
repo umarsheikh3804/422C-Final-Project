@@ -1,5 +1,6 @@
 package ClientSide;
 
+import Common.DBRequest;
 import Common.Item;
 import Common.Request;
 import javafx.application.Platform;
@@ -14,7 +15,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -49,10 +50,11 @@ public class HomeController {
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
     private String id;
+    private String imageURI;
 
     private final Object lock = new Object();
 
-    public void init(Stage primaryStage, ObservableList<Item> log, ObservableList<Item> cart, ObjectOutputStream toServer, ObjectInputStream fromServer, String id) {
+    public void init(Stage primaryStage, ObservableList<Item> log, ObservableList<Item> cart, String imageURI, ObjectOutputStream toServer, ObjectInputStream fromServer, String id) {
         this.stage = primaryStage;
         this.log = log;
         this.cart = cart;
@@ -61,6 +63,7 @@ public class HomeController {
         this.fromServer = fromServer;
         this.toServer = toServer;
         this.id = id;
+        this.imageURI = imageURI;
     }
 
     public void displayClientSide() {
@@ -70,6 +73,7 @@ public class HomeController {
         tableView.getColumns().clear();
         tableView.setItems(log);
 
+        loadImage();
 
         typeFilter.getItems().addAll(new String[]{"Book", "Ebook", "DVD", "Magazine", "Newspaper", "Music CDs", "Maps"});
         genreFilter.getItems().addAll(new String[]{"Mystery", "Fantasy", "Romance", "History", "Adventure", "Horror", "Politics", "Biography", "Science", "Food", "Art", "Poetry", "Drama"});
@@ -106,7 +110,7 @@ public class HomeController {
         ArrayList<Item> toSend = new ArrayList<>(selected);
         toServer.reset();
 
-        toServer.writeObject(new Request(toSend, new ArrayList<>(cart), "checkout", id));
+        toServer.writeObject(new Request(toSend, new ArrayList<>(cart), "checkout", id, null));
         toServer.flush();
 
         Thread t = new Thread(new ServerResponseHandler());
@@ -118,7 +122,7 @@ public class HomeController {
         ObservableList<Item> selected = listView.getSelectionModel().getSelectedItems();
         toServer.reset();
 
-        toServer.writeObject(new Request(new ArrayList<>(selected), new ArrayList<>(cart), "return", id));
+        toServer.writeObject(new Request(new ArrayList<>(selected), new ArrayList<>(cart), "return", id, null));
         toServer.flush();
 
         for (Item s : selected) {
@@ -133,7 +137,6 @@ public class HomeController {
 
     @FXML
     public void logout_clicked(ActionEvent actionEvent) {
-        System.out.println("logout clicked");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_login.fxml"));
             Parent root = loader.load();
@@ -158,10 +161,8 @@ public class HomeController {
         tableView.setItems(filteredList);
     }
 
-//    filter by type
     @FXML
     public void selectType(ActionEvent actionEvent) {
-//        tableView.setItems(log);
         String type = (String)(typeFilter.getSelectionModel().getSelectedItem());
         FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
                 Objects.equals(item.getItemType(), type));
@@ -169,7 +170,6 @@ public class HomeController {
         tableView.setItems(filteredList);
     }
 
-//    filter by language
     @FXML
     public boolean selectLanguage(ActionEvent actionEvent) {
         String type = (String)(languageFilter.getSelectionModel().getSelectedItem());
@@ -179,10 +179,9 @@ public class HomeController {
         tableView.setItems(filteredList);
         return true;
     }
-//    filter by genre
+
     @FXML
     public void selectGenre(ActionEvent actionEvent) {
-//        tableView.setItems(log);
         String type = (String)(genreFilter.getSelectionModel().getSelectedItem());
         FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
                 Objects.equals(item.getGenre(), type));
@@ -218,42 +217,35 @@ public class HomeController {
     }
 
     @FXML
-    public void profileSelected(MouseEvent mouseEvent) {
+    public void profileSelected(MouseEvent mouseEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Profile Picture");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg")
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
         );
+
         File selectedFile = fileChooser.showOpenDialog(stage);
         if (selectedFile != null) {
-            Image selectedImage = new Image(selectedFile.toURI().toString());
+            imageURI = selectedFile.toURI().toString();
+            loadImage();
+        }
+
+        toServer.writeObject(new DBRequest("addImage", null, null, id, imageURI));
+        toServer.flush();
+
+    }
+
+    private void loadImage() {
+        if (imageURI != null && !imageURI.equals("")) {
+            Image selectedImage = new Image(imageURI);
             userProfile.setLayoutX(503); // Move the ImageView to the right
             userProfile.setLayoutY(3); // Move the ImageView down
             userProfile.setFitWidth(40);
             userProfile.setFitHeight(40);
             userProfile.setImage(selectedImage);
-
-// Adjust the position of the ImageView
-
-// Create a circular clip
-//            Circle clip = new Circle(25);
-//
-//// Position the clip relative to the center of the ImageView
-//            double clipX = userProfile.getBoundsInParent().getWidth() / 2;
-//            double clipY = userProfile.getBoundsInParent().getHeight() / 2;
-//            clip.setCenterX(clipX);
-//            clip.setCenterY(clipY);
-//
-//// Set the radius of the clip
-//            double clipRadius = Math.min(clipX, clipY); // Ensure the clip stays within the bounds of the ImageView
-//            clip.setRadius(clipRadius);
-
-// Set the clip to the ImageView
-//            userProfile.setClip(clip);
-
         }
-
     }
+
 
     class ServerResponseHandler implements Runnable {
         @Override
@@ -264,6 +256,8 @@ public class HomeController {
                     Request response = (Request) (fromServer.readObject());
                     ArrayList<Item> catalog = response.getCatalog();
                     ArrayList<Item> updatedCart = response.getCart();
+                    System.out.println(Arrays.toString(catalog.toArray()));
+                    System.out.println(Arrays.toString(updatedCart.toArray()));
 //                    can only update JavaFX UI elements from application thread
                     Platform.runLater(() -> {
                         log.clear();
@@ -277,7 +271,6 @@ public class HomeController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
 
         }
 

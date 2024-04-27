@@ -53,16 +53,30 @@ public class Server {
         CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
         itemsCollection = database.withCodecRegistry(pojoCodecRegistry).getCollection(COLLECTION2, Item.class);
 
-        catalog.add(new Item("Book", "The Road", "Cormac McCarthy", "English", "Fantasy", "ServerSide/images/TR.jpg"));
-        catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", "English", "Mystery", "ServerSide/images/CR.jpg"));
-        catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", "English", "Fantasy", "ServerSide/images/HP.jpg"));
+//        if (itemsCollection.countDocuments() > 0) {
+//            itemsCollection.deleteMany(new Document());
+//        }
+//        if (!catalog.isEmpty()) {
+//            itemsCollection.insertMany(catalog);
+//        }
 
-        if (itemsCollection.countDocuments() > 0) {
-            itemsCollection.deleteMany(new Document());
+//      FOR LOADING EXISTING ITEMS/PERSISTENT STORAGE
+        MongoCursor cursor = itemsCollection.find(Filters.empty()).cursor();
+        while (cursor.hasNext()) {
+            Item nextItem = (Item) cursor.next();
+            if ((nextItem).getAvailable()) {
+                catalog.add(nextItem);
+            }
         }
-        if (!catalog.isEmpty()) {
-            itemsCollection.insertMany(catalog);
-        }
+//      FOR ADDING NEW ITEMS (COMMENT OUT IF NO NEW ITEMS)
+//        catalog.add(new Item("Book", "The Road", "Cormac McCarthy", "English", "Fantasy", "ServerSide/images/TR.jpg", true));
+//        catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", "English", "Mystery", "ServerSide/images/CR.jpg", true));
+//        catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", "English", "Fantasy", "ServerSide/images/HP.jpg", true));
+//        catalog.add(new Item("Book", "Harry Potter and the Deathly Hallows", "JK Rowling", "English", "Fantasy", "ServerSide/images/DH.jpeg", true));
+//        catalog.add(new Item("DVD", "Harry Potter and the Chamber of Secrets", "JK Rowling", "English", "Fantasy", "ServerSide/images/CS.jpg", true));
+//        itemsCollection.insertMany(catalog);
+
+
 
         new Server().setupNetworking();
     }
@@ -90,11 +104,14 @@ public class Server {
         private ArrayList<Item> updatedCart;
         private String id;
         private Socket clientSocket;
-        ClientResponseHandler(String response, ArrayList<Item> updatedCart, String id, Socket clientSocket) {
+
+        private String URI;
+        ClientResponseHandler(String response, ArrayList<Item> updatedCart, String id, Socket clientSocket, String URI) {
             this.response = response;
             this.updatedCart = updatedCart;
             this.id = id;
             this.clientSocket = clientSocket;
+            this.URI = URI;
         }
         public void run() {
             try {
@@ -103,13 +120,13 @@ public class Server {
 //                        send to dbHandler
                         ObjectOutputStream oos = sockets.get(clientSocket);
                         oos.reset();
-                        oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, id));
+                        oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, id, URI));
                         oos.flush();
                     } else {
                         for (Socket s : sockets.keySet()) {
                             ObjectOutputStream oos = sockets.get(s);
                             oos.reset();
-                            oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, null));
+                            oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, null, null));
                             oos.flush();
                         }
                     }
@@ -140,9 +157,12 @@ public class Server {
                         if (selected.getType().equals("checkout")) {
                             for (Object s : selected.getCatalog()) {
                                 synchronized (lock1) {
-                                    Item borrowItem = (Item) (s);
-                                    catalog.remove(getEqualItem(catalog, borrowItem));
+                                    Item borrowItem = getEqualItem(catalog, (Item) (s));
+                                    borrowItem.setAvailable(false);
+                                    catalog.remove(borrowItem);
+                                    itemsCollection.findOneAndReplace(Filters.eq("isbn", borrowItem.getIsbn()), borrowItem);
                                     selected.getCart().add(borrowItem);
+                                    System.out.println(Arrays.toString(selected.getCart().toArray()));
                                 }
                             }
                         }
@@ -151,6 +171,8 @@ public class Server {
                             for (Object s : selected.getCatalog()) {
                                 synchronized (lock2) {
                                     Item returnItem = (Item) (s);
+                                    returnItem.setAvailable(true);
+                                    itemsCollection.findOneAndReplace(Filters.eq("isbn", returnItem.getIsbn()), returnItem);
                                     catalog.add(returnItem);
                                     selected.getCart().remove(getEqualItem(selected.getCart(), returnItem));
                                 }
@@ -168,10 +190,12 @@ public class Server {
                                         Updates.set("checkedOutBooks", newList)
                                 )
                         );
-                        new Thread(new ClientResponseHandler("clientResponse", selected.getCart(), null, clientSocket)).start();
+
+                        new Thread(new ClientResponseHandler("clientResponse", selected.getCart(), null, clientSocket, null)).start();
 
                     } else {
                         String id = null;
+                        String imageURI = null;
                         ArrayList<Item> cart = new ArrayList<>();
                         DBRequest dbRequest = (DBRequest) (request);
                         if (dbRequest.getType().equals("addUser")) {
@@ -183,7 +207,8 @@ public class Server {
                                 Document userDocument = new Document()
                                         .append("username", dbRequest.getUsername())
                                         .append("password", dbRequest.getPassword())
-                                        .append("checkedOutBooks", new ArrayList<String>());
+                                        .append("checkedOutBooks", new ArrayList<String>())
+                                        .append("imageURI", "");
                                 collection.insertOne(userDocument);
                                 id = collection.find(userDocument).first().get("_id", ObjectId.class).toString();
                             }
@@ -206,10 +231,21 @@ public class Server {
                                         cart.add(toAdd);
                                     }
                                 }
+
+                                imageURI = document.get("imageURI", String.class);
                             }
 
                         }
-                        new Thread(new ClientResponseHandler("dbResponse", cart, id, clientSocket)).start();
+
+                        if (dbRequest.getType().equals("addImage")) {
+                            collection.updateOne(
+                                    Filters.eq("_id", new ObjectId(dbRequest.getId())),
+                                    Updates.combine(
+                                            Updates.set("imageURI", dbRequest.getResult())
+                                    )
+                            );
+                        }
+                        new Thread(new ClientResponseHandler("dbResponse", cart, id, clientSocket, imageURI)).start();
                     }
                 }
             } catch (Exception e) {

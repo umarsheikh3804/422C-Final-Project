@@ -22,8 +22,6 @@ import java.security.MessageDigest;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class LoginController {
     @FXML
@@ -105,7 +103,7 @@ public class LoginController {
                     sb.append(String.format("%02x", b));
                 }
 
-                toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), null));
+                toServer.writeObject(new DBRequest("addUser", username1.getText(), sb.toString(), null, null));
                 toServer.flush();
 
                 Thread dbResponseHandler = new Thread(new Runnable() {
@@ -120,7 +118,7 @@ public class LoginController {
                                 FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
                                 Parent root = loader.load();
                                 HomeController controller = loader.getController();
-                                controller.init(stage, log, cart, toServer, fromServer, id);
+                                controller.init(stage, log, cart, null, toServer, fromServer, id);
                                 controller.displayClientSide();
 
                                 Platform.runLater(() -> {
@@ -171,7 +169,7 @@ public class LoginController {
                 sb.append(String.format("%02x", b));
             }
 
-            toServer.writeObject(new DBRequest("check", username.getText(), sb.toString(), null));
+            toServer.writeObject(new DBRequest("check", username.getText(), sb.toString(), null, null));
             toServer.flush();
             Thread dbResponseHandler = new Thread(new Runnable() {
                 @Override
@@ -185,12 +183,15 @@ public class LoginController {
                             System.out.println(response.getId());
                             cart.clear();
                             log.clear();
+//                            load cart
                             cart.addAll(response.getCart());
+//                            load catalog
                             log.addAll(response.getCatalog());
+                            String imageURI = response.getURI();
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("scenes/final_home.fxml"));
                             Parent root = loader.load();
                             HomeController controller = loader.getController();
-                            controller.init(stage, log, cart, toServer, fromServer, id);
+                            controller.init(stage, log, cart, imageURI, toServer, fromServer, id);
                             controller.displayClientSide();
 
                             Platform.runLater(() -> {
