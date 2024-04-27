@@ -17,9 +17,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -158,7 +156,6 @@ public class HomeController {
     public void selectType(ActionEvent actionEvent) {
 //        tableView.setItems(log);
         String type = (String)(typeFilter.getSelectionModel().getSelectedItem());
-        System.out.println(type);
         FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
                 Objects.equals(item.getItemType(), type));
 
@@ -169,7 +166,6 @@ public class HomeController {
     @FXML
     public boolean selectLanguage(ActionEvent actionEvent) {
         String type = (String)(languageFilter.getSelectionModel().getSelectedItem());
-        System.out.println(type);
         FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
                 Objects.equals(item.getLanguage(), type));
 
@@ -181,7 +177,6 @@ public class HomeController {
     public void selectGenre(ActionEvent actionEvent) {
 //        tableView.setItems(log);
         String type = (String)(genreFilter.getSelectionModel().getSelectedItem());
-        System.out.println(type);
         FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
                 Objects.equals(item.getGenre(), type));
 

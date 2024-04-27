@@ -1,6 +1,5 @@
 package ClientSide;
 
-import Common.Item;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,7 +8,6 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class Client extends Application {
 

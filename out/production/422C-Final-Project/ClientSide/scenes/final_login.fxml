@@ -67,7 +67,7 @@
       <PasswordField fx:id="password" layoutX="53.0" layoutY="244.0" prefHeight="25.0" prefWidth="239.0" promptText="Password" />
       <Label layoutX="249.0" layoutY="35.0" prefHeight="46.0" prefWidth="294.0" text="UT ECE LIBRARY" textFill="#ae6f00">
          <font>
-            <Font name="Book Antiqua Bold" size="30.0" />
+            <Font name="Book Antiqua" size="30.0" />
          </font>
       </Label>
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="272.0" layoutX="325.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="294.0" />

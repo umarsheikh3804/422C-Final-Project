@@ -40,16 +40,20 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.ColorAdjust?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientSide.HomeController">
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-        <SplitPane dividerPositions="0.7068965517241379" layoutX="-1.0" layoutY="48.0" prefHeight="353.0" prefWidth="640.0">
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="343.0" prefWidth="476.0">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="401.0" stroke="BLACK" strokeType="INSIDE" width="640.0" />
+        <SplitPane dividerPositions="0.7068965517241379" layoutX="-1.0" layoutY="45.0" prefHeight="356.0" prefWidth="640.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="360.0" prefWidth="448.0">
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="356.0" stroke="BLACK" strokeType="INSIDE" width="448.0" />
                 <ScrollPane layoutX="15.0" layoutY="75.0" prefHeight="231.0" prefWidth="420.0">
                <content>
                   <TableView fx:id="tableView" prefHeight="259.0" prefWidth="450.0">
@@ -61,21 +65,20 @@
                </content>
                 </ScrollPane>
 
-                <TextField fx:id="search_text" layoutX="173.0" layoutY="11.0" prefHeight="25.0" prefWidth="197.0" />
-                <Label layoutX="132.0" layoutY="15.0" text="Browse" />
-                <Button fx:id="checkout_button" layoutX="15.0" layoutY="313.0" mnemonicParsing="false" onAction="#checkout_clicked" prefHeight="25.0" prefWidth="420.0" text="CHECKOUT">
+                <TextField fx:id="search_text" layoutX="186.0" layoutY="12.0" prefHeight="24.0" prefWidth="247.0" promptText="Search Item" />
+                <Button fx:id="checkout_button" layoutX="15.0" layoutY="313.0" mnemonicParsing="false" onAction="#checkout_clicked" prefHeight="25.0" prefWidth="420.0" text="Checkout">
                     <font>
-                        <Font name="Calibri Bold" size="12.0" />
+                        <Font name="Calibri" size="12.0" />
                     </font>
                 </Button>
-                <Label layoutX="16.0" layoutY="14.0" text="Library Catalog">
+                <Label layoutX="16.0" layoutY="12.0" text="Library Catalog" textFill="#ae6f00">
                     <font>
-                        <Font name="Calibri Bold" size="16.0" />
+                        <Font name="Book Antiqua" size="16.0" />
                     </font>
                 </Label>
-                <Button fx:id="search_button" layoutX="373.0" layoutY="10.0" mnemonicParsing="false" onAction="#search_clicked" prefHeight="25.0" prefWidth="60.0" text="SEARCH">
+                <Button fx:id="search_button" layoutX="373.0" layoutY="12.0" mnemonicParsing="false" onAction="#search_clicked" prefHeight="24.0" prefWidth="60.0" text="Search">
                     <font>
-                        <Font name="Calibri Bold" size="12.0" />
+                        <Font name="Calibri" size="12.0" />
                     </font>
                 </Button>
             <ComboBox fx:id="typeFilter" layoutX="16.0" layoutY="44.0" onAction="#selectType" prefHeight="25.0" prefWidth="74.0" promptText="Type" />
@@ -89,38 +92,37 @@
             <ComboBox fx:id="sortBy" layoutX="350.0" layoutY="44.0" onAction="#selectSort" prefHeight="25.0" prefWidth="83.0" promptText="Sort By" />
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="304.0">
-                <Button fx:id="return_button" layoutX="14.0" layoutY="312.0" mnemonicParsing="false" onAction="#return_clicked" prefHeight="25.0" prefWidth="159.0" text="RETURN">
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="356.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+                <Button fx:id="return_button" layoutX="14.0" layoutY="312.0" mnemonicParsing="false" onAction="#return_clicked" prefHeight="25.0" prefWidth="159.0" text="Return">
                     <font>
-                        <Font name="Calibri Bold" size="12.0" />
+                        <Font name="Calibri" size="12.0" />
                     </font>
                 </Button>
-                <Label layoutX="48.0" layoutY="14.0" text="Current Items">
+                <Label layoutX="48.0" layoutY="14.0" text="Current Items" textFill="#ae6f00">
                     <font>
-                        <Font name="Calibri Bold" size="16.0" />
+                        <Font name="Book Antiqua" size="16.0" />
                     </font>
                 </Label>
             <ListView fx:id="listView" layoutX="13.0" layoutY="39.0" prefHeight="266.0" prefWidth="159.0" />
             </AnchorPane>
         </SplitPane>
-        <Button fx:id="logout_button" layoutX="504.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout_clicked" prefHeight="25.0" prefWidth="67.0" text="LOGOUT">
+        <Button fx:id="logout_button" layoutX="504.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout_clicked" prefHeight="25.0" prefWidth="67.0" text="Logout">
             <font>
-                <Font name="Calibri Bold" size="12.0" />
+                <Font name="Calibri" size="12.0" />
             </font>
         </Button>
-        <ImageView fitHeight="34.0" fitWidth="52.0" layoutX="14.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="38.0" fitWidth="38.0" layoutX="22.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@images/image.png" />
             </image>
         </ImageView>
-        <Label layoutX="66.0" layoutY="15.0" text="Welcome Back">
+        <Label layoutX="71.0" layoutY="14.0" text="WELCOME BACK" textFill="#ae6f00">
             <font>
-                <Font name="Calibri Bold" size="20.0" />
-            </font>
-        </Label>
-        <Label fx:id="name" layoutX="194.0" layoutY="15.0" prefHeight="23.0" prefWidth="178.0" text="User">
-            <font>
-                <Font name="Calibri Bold" size="20.0" />
+                <Font name="Book Antiqua Bold" size="20.0" />
             </font>
         </Label>
     </AnchorPane>
+   <effect>
+      <ColorAdjust />
+   </effect>
 </VBox>
