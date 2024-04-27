@@ -16,26 +16,23 @@ public class Item implements Serializable {
     private String itemType;
     private String title;
     private String author;
-    private int pages;
+    private String language;
     private static int current = 0000000000000;
 
     private String isbn;
-    private String summary;
+    private String genre;
 
     public Item() {}
 
 
 //    need to add unique ID, in case of multiple copes do later
-    public Item(String itemType, String title, String author, int pages, String summary, String image) {
-//        this.current = current;
-//        this.previous = previous;
-//        this.lastCheckout = lastCheckout;
+    public Item(String itemType, String title, String author, String language, String genre, String image) {
         this.image = image;
         this.itemType = itemType;
         this.title = title;
         this.author = author;
-        this.pages = pages;
-        this.summary = summary;
+        this.language = language;
+        this.genre= genre;
         isbn = String.valueOf(current);
         current += 1;
 
@@ -79,9 +76,9 @@ public class Item implements Serializable {
 
     public String getIsbn() {return this.isbn;}
 
-    public int getPages() {return this.pages;}
+    public String getLanguage() {return this.language;}
 
-    public String getSummary() {return this.summary;}
+    public String getGenre() {return this.genre;}
 
     public String getItemType() {return this.itemType;}
 
@@ -101,16 +98,16 @@ public class Item implements Serializable {
         this.isbn = isbn;
     }
 
-    public void setPages(int pages) {
-        this.pages = pages;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public void setItemType(String itemType) {
         this.itemType = itemType;
     }
 
-    public void setSummary(String summary) {
-        this.summary = summary;
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
 

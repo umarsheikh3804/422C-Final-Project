@@ -33,6 +33,7 @@
 -->
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
@@ -47,9 +48,9 @@
 
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientSide.HomeController">
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-        <SplitPane dividerPositions="0.75" layoutX="-1.0" layoutY="48.0" prefHeight="353.0" prefWidth="640.0">
+        <SplitPane dividerPositions="0.7068965517241379" layoutX="-1.0" layoutY="48.0" prefHeight="353.0" prefWidth="640.0">
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="343.0" prefWidth="476.0">
-                <ScrollPane layoutX="15.0" layoutY="46.0" prefHeight="260.0" prefWidth="452.0">
+                <ScrollPane layoutX="15.0" layoutY="75.0" prefHeight="231.0" prefWidth="420.0">
                <content>
                   <TableView fx:id="tableView" prefHeight="259.0" prefWidth="450.0">
 <!--                    <columns>-->
@@ -60,36 +61,45 @@
                </content>
                 </ScrollPane>
 
-                <TextField fx:id="search_text" layoutX="234.0" layoutY="11.0" prefHeight="25.0" prefWidth="178.0" />
-                <Label layoutX="187.0" layoutY="14.0" text="Browse" />
-                <Button fx:id="checkout_button" layoutX="15.0" layoutY="313.0" mnemonicParsing="false" onAction="#checkout_clicked" prefHeight="25.0" prefWidth="452.0" text="CHECKOUT">
+                <TextField fx:id="search_text" layoutX="173.0" layoutY="11.0" prefHeight="25.0" prefWidth="197.0" />
+                <Label layoutX="132.0" layoutY="15.0" text="Browse" />
+                <Button fx:id="checkout_button" layoutX="15.0" layoutY="313.0" mnemonicParsing="false" onAction="#checkout_clicked" prefHeight="25.0" prefWidth="420.0" text="CHECKOUT">
                     <font>
                         <Font name="Calibri Bold" size="12.0" />
                     </font>
                 </Button>
-                <Label layoutX="37.0" layoutY="15.0" text="Library Catalog">
+                <Label layoutX="16.0" layoutY="14.0" text="Library Catalog">
                     <font>
                         <Font name="Calibri Bold" size="16.0" />
                     </font>
                 </Label>
-                <Button fx:id="search_button" layoutX="412.0" layoutY="10.0" mnemonicParsing="false" onAction="#search_clicked" prefHeight="25.0" prefWidth="60.0" text="SEARCH">
+                <Button fx:id="search_button" layoutX="373.0" layoutY="10.0" mnemonicParsing="false" onAction="#search_clicked" prefHeight="25.0" prefWidth="60.0" text="SEARCH">
                     <font>
                         <Font name="Calibri Bold" size="12.0" />
                     </font>
                 </Button>
+            <ComboBox fx:id="typeFilter" layoutX="16.0" layoutY="44.0" onAction="#selectType" prefHeight="25.0" prefWidth="74.0" promptText="Type" />
+            <ComboBox fx:id="languageFilter" layoutX="174.0" layoutY="44.0" onAction="#selectLanguage" prefHeight="25.0" prefWidth="100.0" promptText="Language" />
+            <ComboBox fx:id="genreFilter" layoutX="95.0" layoutY="44.0" onAction="#selectGenre" prefHeight="25.0" prefWidth="74.0" promptText="Genre" />
+            <Button fx:id="resetFilter" layoutX="280.0" layoutY="44.0" mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="60.0" text="Reset">
+               <font>
+                  <Font name="Calibri" size="12.0" />
+               </font>
+            </Button>
+            <ComboBox fx:id="sortBy" layoutX="350.0" layoutY="44.0" onAction="#selectSort" prefHeight="25.0" prefWidth="83.0" promptText="Sort By" />
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="304.0">
-                <Button fx:id="return_button" layoutX="14.0" layoutY="312.0" mnemonicParsing="false" onAction="#return_clicked" prefHeight="25.0" prefWidth="131.0" text="RETURN">
+                <Button fx:id="return_button" layoutX="14.0" layoutY="312.0" mnemonicParsing="false" onAction="#return_clicked" prefHeight="25.0" prefWidth="159.0" text="RETURN">
                     <font>
                         <Font name="Calibri Bold" size="12.0" />
                     </font>
                 </Button>
-                <Label layoutX="32.0" layoutY="14.0" text="Current Items">
+                <Label layoutX="48.0" layoutY="14.0" text="Current Items">
                     <font>
                         <Font name="Calibri Bold" size="16.0" />
                     </font>
                 </Label>
-            <ListView fx:id="listView" layoutX="13.0" layoutY="39.0" prefHeight="266.0" prefWidth="131.0" />
+            <ListView fx:id="listView" layoutX="13.0" layoutY="39.0" prefHeight="266.0" prefWidth="159.0" />
             </AnchorPane>
         </SplitPane>
         <Button fx:id="logout_button" layoutX="504.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout_clicked" prefHeight="25.0" prefWidth="67.0" text="LOGOUT">

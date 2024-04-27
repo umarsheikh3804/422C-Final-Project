@@ -17,8 +17,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
 
 public class HomeController {
     @FXML
@@ -31,6 +34,11 @@ public class HomeController {
     @FXML
     public Button search_button;
     public TextField search_text;
+    public ComboBox typeFilter;
+    public ComboBox genreFilter;
+    public ComboBox languageFilter;
+    public Button resetFilter;
+    public ComboBox sortBy;
     private Stage stage;
     private ObservableList<Item> log;
     private ObservableList<Item> cart;
@@ -52,12 +60,17 @@ public class HomeController {
     }
 
     public void displayClientSide() {
-
         listView.getItems().clear();
         listView.setItems(cart);
 
         tableView.getColumns().clear();
         tableView.setItems(log);
+
+        typeFilter.getItems().addAll(new String[]{"Book", "Ebook", "DVD", "Magazine", "Newspaper", "Music CDs", "Maps"});
+        genreFilter.getItems().addAll(new String[]{"Mystery", "Fantasy", "Romance", "History", "Adventure", "Horror", "Politics", "Biography", "Science", "Food", "Art", "Poetry", "Drama"});
+        languageFilter.getItems().addAll(new String[]{"English", "Spanish", "French", "Chinese", "Arabic", "Hindi", "Russian", "German", "Japanese", "Portuguese"});
+
+        sortBy.getItems().addAll(new String[]{"Title", "Author", "Genre", "Language"});
 
         TableColumn<Item, String> titleColumn = new TableColumn<>("Title");
         titleColumn.setCellValueFactory(log -> log.getValue().titleProperty());
@@ -138,6 +151,68 @@ public class HomeController {
                 item.getTitle().toLowerCase().contains(search) || item.getAuthor().toLowerCase().contains(search));
 
         tableView.setItems(filteredList);
+    }
+
+//    filter by type
+    @FXML
+    public void selectType(ActionEvent actionEvent) {
+//        tableView.setItems(log);
+        String type = (String)(typeFilter.getSelectionModel().getSelectedItem());
+        System.out.println(type);
+        FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
+                Objects.equals(item.getItemType(), type));
+
+        tableView.setItems(filteredList);
+    }
+
+//    filter by language
+    @FXML
+    public boolean selectLanguage(ActionEvent actionEvent) {
+        String type = (String)(languageFilter.getSelectionModel().getSelectedItem());
+        System.out.println(type);
+        FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
+                Objects.equals(item.getLanguage(), type));
+
+        tableView.setItems(filteredList);
+        return true;
+    }
+//    filter by genre
+    @FXML
+    public void selectGenre(ActionEvent actionEvent) {
+//        tableView.setItems(log);
+        String type = (String)(genreFilter.getSelectionModel().getSelectedItem());
+        System.out.println(type);
+        FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
+                Objects.equals(item.getGenre(), type));
+
+        tableView.setItems(filteredList);
+    }
+
+    public void resetClicked(ActionEvent actionEvent) {
+        typeFilter.setValue("Type");
+        languageFilter.setValue("Language");
+        genreFilter.setValue("Genre");
+        tableView.setItems(log);
+
+    }
+
+    public void selectSort(ActionEvent actionEvent) {
+//        sort by title, author, genre, language
+        String type = (String)(sortBy.getSelectionModel().getSelectedItem());
+        System.out.println(type);
+        Comparator<Item> method;
+        if (type.equals("Title")) {
+//            create custom comparator, based on getTitle
+            method = Comparator.comparing(Item::getTitle);
+
+        } else if (type.equals("Author")) {
+            method = Comparator.comparing(Item::getAuthor);
+        } else if (type.equals("Language")) {
+            method = Comparator.comparing(Item::getLanguage);
+        } else {
+            method = Comparator.comparing(Item::getGenre);
+        }
+        log.sort(method);
     }
 
     class ServerResponseHandler implements Runnable {

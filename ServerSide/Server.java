@@ -53,9 +53,9 @@ public class Server {
         CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
         itemsCollection = database.withCodecRegistry(pojoCodecRegistry).getCollection(COLLECTION2, Item.class);
 
-        catalog.add(new Item("Book", "The Road", "Cormac McCarthy", 200, "", "ServerSide/images/TR.jpg"));
-        catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", 200, "", "ServerSide/images/CR.jpg"));
-        catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", 200, "", "ServerSide/images/HP.jpg"));
+        catalog.add(new Item("Book", "The Road", "Cormac McCarthy", "English", "Fantasy", "ServerSide/images/TR.jpg"));
+        catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", "English", "Mystery", "ServerSide/images/CR.jpg"));
+        catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", "English", "Fantasy", "ServerSide/images/HP.jpg"));
 
         if (itemsCollection.countDocuments() > 0) {
             itemsCollection.deleteMany(new Document());
