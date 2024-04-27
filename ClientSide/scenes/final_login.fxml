@@ -46,9 +46,9 @@
 
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientSide.LoginController">
    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="415.0" stroke="BLACK" strokeType="INSIDE" width="641.0" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="415.0" layoutX="-1.0" stroke="BLACK" strokeType="INSIDE" width="641.0" />
       <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="272.0" layoutX="19.0" layoutY="108.0" stroke="BLACK" strokeType="INSIDE" width="294.0" />
-      <ImageView fitHeight="96.0" fitWidth="78.0" layoutX="158.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="logo" fitHeight="96.0" fitWidth="78.0" layoutX="166.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@images/image.png" />
          </image>

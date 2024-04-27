@@ -44,6 +44,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
@@ -57,10 +58,6 @@
                 <ScrollPane layoutX="15.0" layoutY="75.0" prefHeight="231.0" prefWidth="420.0">
                <content>
                   <TableView fx:id="tableView" prefHeight="259.0" prefWidth="450.0">
-<!--                    <columns>-->
-<!--                      <TableColumn prefWidth="75.0" text="C1" />-->
-<!--                      <TableColumn prefWidth="75.0" text="C2" />-->
-<!--                    </columns>-->
                   </TableView>
                </content>
                 </ScrollPane>
@@ -106,21 +103,30 @@
             <ListView fx:id="listView" layoutX="13.0" layoutY="39.0" prefHeight="266.0" prefWidth="159.0" />
             </AnchorPane>
         </SplitPane>
-        <Button fx:id="logout_button" layoutX="504.0" layoutY="14.0" mnemonicParsing="false" onAction="#logout_clicked" prefHeight="25.0" prefWidth="67.0" text="Logout">
-            <font>
-                <Font name="Calibri" size="12.0" />
-            </font>
-        </Button>
-        <ImageView fitHeight="38.0" fitWidth="38.0" layoutX="22.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@images/image.png" />
-            </image>
-        </ImageView>
-        <Label layoutX="71.0" layoutY="14.0" text="WELCOME BACK" textFill="#ae6f00">
-            <font>
-                <Font name="Book Antiqua Bold" size="20.0" />
-            </font>
-        </Label>
+      <Pane prefHeight="48.0" prefWidth="640.0">
+         <children>
+            <ImageView fx:id="userProfile" fitHeight="40.0" fitWidth="40.0" layoutX="500.0" layoutY="3.0" onMouseClicked="#profileSelected" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/profilePic.jpg" />
+               </image>
+            </ImageView>
+              <Button fx:id="logout_button" layoutX="559.0" layoutY="12.0" mnemonicParsing="false" onAction="#logout_clicked" prefHeight="25.0" prefWidth="67.0" text="Logout">
+                  <font>
+                      <Font name="Calibri" size="12.0" />
+                  </font>
+              </Button>
+              <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="14.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                      <Image url="@images/image.png" />
+                  </image>
+              </ImageView>
+              <Label layoutX="63.0" layoutY="10.0" text="Welcome Back!" textFill="#ae6f00">
+                  <font>
+                      <Font name="Book Antiqua" size="20.0" />
+                  </font>
+              </Label>
+         </children>
+      </Pane>
     </AnchorPane>
    <effect>
       <ColorAdjust />

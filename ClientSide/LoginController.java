@@ -12,8 +12,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import java.io.File;
 import java.security.MessageDigest;
@@ -40,6 +42,8 @@ public class LoginController {
     public Hyperlink forgotLabel;
     public Label strengthMessage;
     public Label usernameExists;
+    @FXML
+    public ImageView logo;
     private Stage stage;
     private ObservableList<Item> log = FXCollections.observableArrayList();
     private ObservableList<Item> cart = FXCollections.observableArrayList();;
@@ -53,6 +57,10 @@ public class LoginController {
         this.stage = primaryStage;
         this.toServer = toServer;
         this.fromServer = fromServer;
+
+        Circle clip = new Circle(39);
+        clip.setTranslateX(205);
+        clip.setTranslateY(58);
     }
 
     @FXML
