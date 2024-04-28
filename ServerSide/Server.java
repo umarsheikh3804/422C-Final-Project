@@ -148,11 +148,11 @@ public class Server {
                         Request selected = (Request) (request);
 
                         if (selected.getType().equals("checkout")) {
-                            checkoutRequestHandler(selected);
+                            checkoutRequestHandler(selected, itemsCollection, (ArrayList<Item>) catalog);
                         }
 
                         if (selected.getType().equals("return")) {
-                            returnRequestHandler(selected);
+                            returnRequestHandler(selected, itemsCollection, (ArrayList<Item>) catalog);
                         }
 
                         updateUserCart(selected);
@@ -170,7 +170,7 @@ public class Server {
                         }
 
                         if (dbRequest.getType().equals("check")) {
-                            List<String> list = confirmUser(dbRequest, cart);
+                            List<String> list = confirmUser(dbRequest, cart, collection, itemsCollection);
                             if (list != null) {
                                 id = list.get(0);
                                 imageURI = list.get(1);
@@ -179,7 +179,7 @@ public class Server {
                         }
 
                         if (dbRequest.getType().equals("addImage")) {
-                            addImage(dbRequest);
+                            addImage(dbRequest, collection);
                         }
 
                         new Thread(new ClientResponseHandler("dbResponse", cart, id, clientSocket, imageURI)).start();
@@ -193,7 +193,7 @@ public class Server {
         }
     }
 
-    public void checkoutRequestHandler(Request selected) {
+    public void checkoutRequestHandler(Request selected, MongoCollection<Item> itemsCollection, ArrayList<Item> catalog) {
         try {
             for (Item borrowItem : selected.getCatalog()) {
                 synchronized (lock1) {
@@ -209,7 +209,7 @@ public class Server {
         } catch (Exception ne) {};
     }
 
-    public void returnRequestHandler(Request selected) {
+    public void returnRequestHandler(Request selected, MongoCollection<Item> itemsCollection, ArrayList<Item> catalog) {
         try {
             for (Item returnItem : selected.getCatalog()) {
                 synchronized (lock2) {
@@ -260,7 +260,7 @@ public class Server {
         return id;
     }
 
-    public ArrayList<String> confirmUser(DBRequest dbRequest, ArrayList<Item> cart) {
+    public ArrayList<String> confirmUser(DBRequest dbRequest, ArrayList<Item> cart, MongoCollection<Document> collection, MongoCollection<Item> itemsCollection) {
 
         Document query = new Document("username", dbRequest.getUsername()).append("password", dbRequest.getPassword());
         MongoCursor cursor = collection.find(query).cursor();
@@ -285,7 +285,7 @@ public class Server {
         return null;
     }
 
-    public static void addImage(DBRequest dbRequest) {
+    public void addImage(DBRequest dbRequest, MongoCollection<Document> collection) {
         collection.updateOne(
                 Filters.eq("_id", new ObjectId(dbRequest.getId())),
                 Updates.combine(
