@@ -31,8 +31,8 @@ import org.bson.types.ObjectId;
 public class Server {
 
     private static List<Item> catalog = new ArrayList<Item>();
-    private final Object lock1 = new Object();
-    private final Object lock2 = new Object();
+    private static final Object lock1 = new Object();
+    private static final Object lock2 = new Object();
     Map<Socket, ObjectOutputStream> sockets = new HashMap<>();
     private static MongoClient mongo;
     private static MongoDatabase database;
@@ -166,7 +166,7 @@ public class Server {
 
                         DBRequest dbRequest = (DBRequest) (request);
                         if (dbRequest.getType().equals("addUser")) {
-                            id = addUser(dbRequest);
+                            id = addUser(dbRequest, collection);
                         }
 
                         if (dbRequest.getType().equals("check")) {
@@ -194,28 +194,34 @@ public class Server {
     }
 
     public void checkoutRequestHandler(Request selected) {
-        for (Object s : selected.getCatalog()) {
-            synchronized (lock1) {
-                Item borrowItem = getEqualItem(catalog, (Item) (s));
-                borrowItem.setAvailable(false);
-                catalog.remove(borrowItem);
-                itemsCollection.findOneAndReplace(Filters.eq("isbn", borrowItem.getIsbn()), borrowItem);
-                selected.getCart().add(borrowItem);
-//                System.out.println(Arrays.toString(selected.getCart().toArray()));
+        try {
+            for (Item borrowItem : selected.getCatalog()) {
+                synchronized (lock1) {
+//                I took this line out, and it still works
+//                Item borrowItem = getEqualItem(catalog, s);
+                    borrowItem.setAvailable(false);
+                    catalog.remove(borrowItem);
+                    selected.getCart().add(borrowItem);
+                    itemsCollection.findOneAndReplace(Filters.eq("isbn", borrowItem.getIsbn()), borrowItem);
+
+                }
             }
-        }
+        } catch (Exception ne) {};
     }
 
     public void returnRequestHandler(Request selected) {
-        for (Object s : selected.getCatalog()) {
-            synchronized (lock2) {
-                Item returnItem = (Item) (s);
-                returnItem.setAvailable(true);
-                itemsCollection.findOneAndReplace(Filters.eq("isbn", returnItem.getIsbn()), returnItem);
-                catalog.add(returnItem);
-                selected.getCart().remove(getEqualItem(selected.getCart(), returnItem));
+        try {
+            for (Item returnItem : selected.getCatalog()) {
+                synchronized (lock2) {
+//                Item returnItem = (Item) (s);
+                    returnItem.setAvailable(true);
+                    catalog.add(returnItem);
+                    selected.getCart().remove(getEqualItem(selected.getCart(), returnItem));
+                    itemsCollection.findOneAndReplace(Filters.eq("isbn", returnItem.getIsbn()), returnItem);
+
+                }
             }
-        }
+        } catch (Exception e) {};
     }
 
     public ArrayList<String> updateUserCart(Request selected) {
@@ -224,16 +230,18 @@ public class Server {
             newList.add(i.getIsbn());
         }
 
-        collection.updateOne(
-                Filters.eq("_id", new ObjectId(selected.getId())),
-                Updates.combine(
-                        Updates.set("checkedOutBooks", newList)
-                )
-        );
+        try {
+            collection.updateOne(
+                    Filters.eq("_id", new ObjectId(selected.getId())),
+                    Updates.combine(
+                            Updates.set("checkedOutBooks", newList)
+                    )
+            );
+        } catch (Exception e) {};
         return newList;
     }
 
-    public String addUser(DBRequest dbRequest) {
+    public String addUser(DBRequest dbRequest, MongoCollection<Document> collection) {
         Document query = new Document("username", dbRequest.getUsername());
         MongoCursor<Document> cursor = collection.find(query).cursor();
         int available = cursor.available();
@@ -277,7 +285,7 @@ public class Server {
         return null;
     }
 
-    public void addImage(DBRequest dbRequest) {
+    public static void addImage(DBRequest dbRequest) {
         collection.updateOne(
                 Filters.eq("_id", new ObjectId(dbRequest.getId())),
                 Updates.combine(
@@ -286,7 +294,7 @@ public class Server {
         );
     }
 
-    private Item getEqualItem(List<Item> list, Item s) {
+    public Item getEqualItem(List<Item> list, Item s) {
         for (Item i : list) {
             if (i.equals(s)) {
                 return i;
