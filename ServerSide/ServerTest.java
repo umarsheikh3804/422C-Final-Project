@@ -15,7 +15,11 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,11 +34,12 @@ public class ServerTest {
     private static final String DB = "Users";
     private static final String COLLECTION = "testUsers";
     private static final String COLLECTION2 = "testItems";
-
     private static MongoClient mongo;
     private static MongoDatabase database;
     private static MongoCollection<Document> collection;
     private static MongoCollection<Item> itemsCollection;
+
+    private static String host = "localhost";
 
     @BeforeAll
     public void init() {
@@ -54,6 +59,26 @@ public class ServerTest {
             collection.deleteMany(new Document());
         }
 
+    }
+
+    @Test
+    public void testNetworking() throws InterruptedException {
+        Thread serverThread = new Thread(() -> {
+            try {
+                new Server().setupNetworking();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        serverThread.start();
+        Thread.sleep(5000);
+        try {
+            Socket socket = new Socket(host, 1056);
+            System.out.println("client connected");
+            Assertions.assertTrue(socket.isConnected());
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 
     @Test

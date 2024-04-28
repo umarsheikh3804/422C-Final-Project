@@ -75,7 +75,7 @@ public class Server {
         new Server().setupNetworking();
     }
 
-    private Socket setupNetworking() {
+    public void setupNetworking() {
         try {
             ServerSocket server = new ServerSocket(1056);
             while (true) {
@@ -86,7 +86,6 @@ public class Server {
                 Thread req = new Thread(new ClientRequestHandler(clientSocket));
                 req.start();
 
-                return clientSocket;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
