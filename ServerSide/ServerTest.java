@@ -21,7 +21,9 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -79,6 +81,144 @@ public class ServerTest {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    @Test
+    public void testMultipleClients() throws InterruptedException {
+        ArrayList<Socket> sockets = new ArrayList<>();
+        Thread serverThread = new Thread(() -> {
+            try {
+                new Server().setupNetworking();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        serverThread.start();
+        Thread.sleep(5000);
+        try {
+            for (int i = 0; i < 5; i++) {
+                sockets.add(new Socket(host, 1056));
+            }
+
+            for (Socket s : sockets) {
+                Assertions.assertTrue(s.isConnected());
+                System.out.println("client connected");
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    @Test
+    public void clientDBResponseTest() {
+        try {
+            Thread serverThread = new Thread(() -> {
+                try {
+                    new Server().setupNetworking();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            serverThread.start();
+            Thread.sleep(5000);
+
+            Socket socket = new Socket(host, 1056);
+            System.out.println("client connected");
+            Assertions.assertTrue(socket.isConnected());
+
+
+            ObjectInputStream fromServer = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream toServer = new ObjectOutputStream(socket.getOutputStream());
+            Map<Socket, ObjectOutputStream> sockets = new HashMap<>();
+            sockets.put(socket, toServer);
+
+            ArrayList<Item> catalog = new ArrayList<>();
+            catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", "English", "Mystery", "ServerSide/images/CR.jpg", true));
+            catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", "English", "Fantasy", "ServerSide/images/HP.jpg", true));
+
+            ArrayList<Item> cart = new ArrayList<>();
+            cart.add(new Item("Book", "Harry Potter and the Deathly Hallows", "JK Rowling", "English", "Fantasy", "ServerSide/images/DH.jpeg", false));
+            cart.add(new Item("DVD", "Harry Potter and the Chamber of Secrets", "JK Rowling", "English", "Fantasy", "ServerSide/images/CS.jpg", false));
+
+            new Thread(new Server().new ClientResponseHandler("dbResponse", cart, "123", socket, "file", catalog, sockets)).start();
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Request response = null;
+                    try {
+                        response = (Request) (fromServer.readObject());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Assertions.assertArrayEquals(catalog.toArray(), response.getCatalog().toArray());
+                    Assertions.assertArrayEquals(cart.toArray(), response.getCatalog().toArray());
+                    Assertions.assertEquals("123", response.getId());
+                    Assertions.assertEquals("file", response.getURI());
+                }
+            });
+
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    @Test
+    public void clientResponseTest() {
+        Map<Socket, ObjectOutputStream> sockets = new HashMap<>();
+            try {
+                Thread serverThread = new Thread(() -> {
+                    try {
+                        new Server().setupNetworking();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                serverThread.start();
+                Thread.sleep(5000);
+
+                try {
+                    for (int i = 0; i < 5; i++) {
+                        Socket socket = new Socket(host, 1056);
+                        sockets.put(socket, new ObjectOutputStream(socket.getOutputStream()));
+                    }
+
+
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+
+                ArrayList<Item> catalog = new ArrayList<>();
+                catalog.add(new Item("Book", "The Catcher in the Rye", "J.D. Salinger", "English", "Mystery", "ServerSide/images/CR.jpg", true));
+                catalog.add(new Item("Book", "Harry Potter and the Sorcerer's Stone", "JK Rowling", "English", "Fantasy", "ServerSide/images/HP.jpg", true));
+
+                ArrayList<Item> cart = new ArrayList<>();
+                cart.add(new Item("Book", "Harry Potter and the Deathly Hallows", "JK Rowling", "English", "Fantasy", "ServerSide/images/DH.jpeg", false));
+                cart.add(new Item("DVD", "Harry Potter and the Chamber of Secrets", "JK Rowling", "English", "Fantasy", "ServerSide/images/CS.jpg", false));
+
+                new Thread(new Server().new ClientResponseHandler("clientResponse", cart, "123", null, "file", catalog, sockets)).start();
+
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (Socket s : sockets.keySet()) {
+                            Request response = null;
+                            try {
+                                response = (Request) (new ObjectInputStream(s.getInputStream()).readObject());
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            } catch (ClassNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+                            Assertions.assertArrayEquals(catalog.toArray(), response.getCatalog().toArray());
+                            Assertions.assertArrayEquals(cart.toArray(), response.getCatalog().toArray());
+                            Assertions.assertEquals("123", response.getId());
+                            Assertions.assertEquals("file", response.getURI());
+                        }
+                    }
+                });
+
+            } catch (Exception e) {e.printStackTrace();}
     }
 
     @Test

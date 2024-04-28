@@ -99,27 +99,33 @@ public class Server {
         private String id;
         private Socket clientSocket;
         private String URI;
-        ClientResponseHandler(String response, ArrayList<Item> updatedCart, String id, Socket clientSocket, String URI) {
+        private List<Item> updatedCatalog;
+
+        private Map<Socket, ObjectOutputStream> map;
+
+        ClientResponseHandler(String response, ArrayList<Item> updatedCart, String id, Socket clientSocket, String URI, List<Item> updatedCatalog, Map<Socket, ObjectOutputStream> map) {
             this.response = response;
             this.updatedCart = updatedCart;
             this.id = id;
             this.clientSocket = clientSocket;
             this.URI = URI;
+            this.updatedCatalog = updatedCatalog;
+            this.map = map;
         }
         public void run() {
             try {
                 synchronized (lock1) {
                     if (response.equals("dbResponse")) {
 //                        send to dbHandler
-                        ObjectOutputStream oos = sockets.get(clientSocket);
+                        ObjectOutputStream oos = map.get(clientSocket);
                         oos.reset();
-                        oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, id, URI));
+                        oos.writeObject(new Request((ArrayList<Item>) updatedCatalog, updatedCart, response, id, URI));
                         oos.flush();
                     } else {
                         for (Socket s : sockets.keySet()) {
-                            ObjectOutputStream oos = sockets.get(s);
+                            ObjectOutputStream oos = map.get(s);
                             oos.reset();
-                            oos.writeObject(new Request((ArrayList<Item>) catalog, updatedCart, response, null, null));
+                            oos.writeObject(new Request((ArrayList<Item>) updatedCatalog, updatedCart, response, null, null));
                             oos.flush();
                         }
                     }
@@ -138,8 +144,8 @@ public class Server {
         }
         public void run() {
             try {
-                session = mongo.startSession();
-                session.startTransaction();
+//                session = mongo.startSession();
+//                session.startTransaction();
                 ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
                 while (true) {
                     Object request = ois.readObject();
@@ -156,7 +162,7 @@ public class Server {
 
                         updateUserCart(selected);
 
-                        new Thread(new ClientResponseHandler("clientResponse", selected.getCart(), null, clientSocket, null)).start();
+                        new Thread(new ClientResponseHandler("clientResponse", selected.getCart(), null, clientSocket, null, catalog, sockets)).start();
 
                     } else {
                         String id = null;
@@ -181,13 +187,13 @@ public class Server {
                             addImage(dbRequest, collection);
                         }
 
-                        new Thread(new ClientResponseHandler("dbResponse", cart, id, clientSocket, imageURI)).start();
+                        new Thread(new ClientResponseHandler("dbResponse", cart, id, clientSocket, imageURI, catalog, sockets)).start();
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                session.close();
+//                session.close();
             }
         }
     }
