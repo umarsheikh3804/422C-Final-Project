@@ -30,18 +30,18 @@ import java.util.Objects;
 public class HomeController {
     @FXML
     public TableView<Item> tableView;
-    public Button checkout_button;
-    public Button return_button;
+//    public Button checkout_button;
+//    public Button return_button;
     @FXML
     public ListView<Item> listView;
-    public Button logout_button;
-    @FXML
-    public Button search_button;
+//    public Button logout_button;
+//    @FXML
+//    public Button search_button;
     public TextField search_text;
     public ComboBox typeFilter;
     public ComboBox genreFilter;
     public ComboBox languageFilter;
-    public Button resetFilter;
+//    public Button resetFilter;
     public ComboBox sortBy;
     public ImageView userProfile;
     private Stage stage;
@@ -171,13 +171,13 @@ public class HomeController {
     }
 
     @FXML
-    public boolean selectLanguage(ActionEvent actionEvent) {
+    public void selectLanguage(ActionEvent actionEvent) {
+//        System.out.println(languageFilter.isPressed());
         String type = (String)(languageFilter.getSelectionModel().getSelectedItem());
         FilteredList<Item> filteredList = new FilteredList<>(tableView.getItems(), item ->
                 Objects.equals(item.getLanguage(), type));
 
         tableView.setItems(filteredList);
-        return true;
     }
 
     @FXML

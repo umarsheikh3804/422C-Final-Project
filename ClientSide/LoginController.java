@@ -153,7 +153,6 @@ public class LoginController {
             }
         }
 
-
     }
 
     @FXML

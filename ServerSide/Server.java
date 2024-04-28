@@ -11,6 +11,7 @@ import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -53,13 +54,6 @@ public class Server {
         CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
         itemsCollection = database.withCodecRegistry(pojoCodecRegistry).getCollection(COLLECTION2, Item.class);
 
-//        if (itemsCollection.countDocuments() > 0) {
-//            itemsCollection.deleteMany(new Document());
-//        }
-//        if (!catalog.isEmpty()) {
-//            itemsCollection.insertMany(catalog);
-//        }
-
 //      FOR LOADING EXISTING ITEMS/PERSISTENT STORAGE
         MongoCursor cursor = itemsCollection.find(Filters.empty()).cursor();
         while (cursor.hasNext()) {
@@ -81,7 +75,7 @@ public class Server {
         new Server().setupNetworking();
     }
 
-    private void setupNetworking() {
+    private Socket setupNetworking() {
         try {
             ServerSocket server = new ServerSocket(1056);
             while (true) {
@@ -92,6 +86,7 @@ public class Server {
                 Thread req = new Thread(new ClientRequestHandler(clientSocket));
                 req.start();
 
+                return clientSocket;
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -104,7 +99,6 @@ public class Server {
         private ArrayList<Item> updatedCart;
         private String id;
         private Socket clientSocket;
-
         private String URI;
         ClientResponseHandler(String response, ArrayList<Item> updatedCart, String id, Socket clientSocket, String URI) {
             this.response = response;
@@ -130,7 +124,6 @@ public class Server {
                             oos.flush();
                         }
                     }
-                    System.out.println("sending updated catalog back to client");
                 }
 
             } catch (IOException e) {
@@ -155,41 +148,14 @@ public class Server {
                         Request selected = (Request) (request);
 
                         if (selected.getType().equals("checkout")) {
-                            for (Object s : selected.getCatalog()) {
-                                synchronized (lock1) {
-                                    Item borrowItem = getEqualItem(catalog, (Item) (s));
-                                    borrowItem.setAvailable(false);
-                                    catalog.remove(borrowItem);
-                                    itemsCollection.findOneAndReplace(Filters.eq("isbn", borrowItem.getIsbn()), borrowItem);
-                                    selected.getCart().add(borrowItem);
-                                    System.out.println(Arrays.toString(selected.getCart().toArray()));
-                                }
-                            }
+                            checkoutRequestHandler(selected);
                         }
 
                         if (selected.getType().equals("return")) {
-                            for (Object s : selected.getCatalog()) {
-                                synchronized (lock2) {
-                                    Item returnItem = (Item) (s);
-                                    returnItem.setAvailable(true);
-                                    itemsCollection.findOneAndReplace(Filters.eq("isbn", returnItem.getIsbn()), returnItem);
-                                    catalog.add(returnItem);
-                                    selected.getCart().remove(getEqualItem(selected.getCart(), returnItem));
-                                }
-                            }
+                            returnRequestHandler(selected);
                         }
 
-                        ArrayList<String> newList = new ArrayList<String>();
-                        for (Item i : selected.getCart()) {
-                            newList.add(i.getIsbn());
-                        }
-
-                        collection.updateOne(
-                                Filters.eq("_id", new ObjectId(selected.getId())),
-                                Updates.combine(
-                                        Updates.set("checkedOutBooks", newList)
-                                )
-                        );
+                        updateUserCart(selected);
 
                         new Thread(new ClientResponseHandler("clientResponse", selected.getCart(), null, clientSocket, null)).start();
 
@@ -197,54 +163,25 @@ public class Server {
                         String id = null;
                         String imageURI = null;
                         ArrayList<Item> cart = new ArrayList<>();
+
                         DBRequest dbRequest = (DBRequest) (request);
                         if (dbRequest.getType().equals("addUser")) {
-                            Document query = new Document("username", dbRequest.getUsername());
-                            MongoCursor<Document> cursor = collection.find(query).cursor();
-                            int available = cursor.available();
-
-                            if (available == 0) {
-                                Document userDocument = new Document()
-                                        .append("username", dbRequest.getUsername())
-                                        .append("password", dbRequest.getPassword())
-                                        .append("checkedOutBooks", new ArrayList<String>())
-                                        .append("imageURI", "");
-                                collection.insertOne(userDocument);
-                                id = collection.find(userDocument).first().get("_id", ObjectId.class).toString();
-                            }
+                            id = addUser(dbRequest);
                         }
 
                         if (dbRequest.getType().equals("check")) {
-                            Document query = new Document("username", dbRequest.getUsername()).append("password", dbRequest.getPassword());
-                            MongoCursor cursor = collection.find(query).cursor();
-                            int available = cursor.available();
-                            boolean found = (available > 0);
-
-//                            gets cart for associated username and password and sends it back to client
-                            if (found) {
-                                Document document = (Document) cursor.next();
-                                id = document.get("_id", ObjectId.class).toHexString();
-                                ArrayList isbns = document.get("checkedOutBooks", ArrayList.class);
-                                if (!isbns.isEmpty()) {
-                                    for (Object isbn : isbns) {
-                                        Item toAdd = itemsCollection.find(Filters.eq("isbn", isbn)).first();
-                                        cart.add(toAdd);
-                                    }
-                                }
-
-                                imageURI = document.get("imageURI", String.class);
+                            List<String> list = confirmUser(dbRequest, cart);
+                            if (list != null) {
+                                id = list.get(0);
+                                imageURI = list.get(1);
                             }
 
                         }
 
                         if (dbRequest.getType().equals("addImage")) {
-                            collection.updateOne(
-                                    Filters.eq("_id", new ObjectId(dbRequest.getId())),
-                                    Updates.combine(
-                                            Updates.set("imageURI", dbRequest.getResult())
-                                    )
-                            );
+                            addImage(dbRequest);
                         }
+
                         new Thread(new ClientResponseHandler("dbResponse", cart, id, clientSocket, imageURI)).start();
                     }
                 }
@@ -254,6 +191,99 @@ public class Server {
                 session.close();
             }
         }
+    }
+
+    public void checkoutRequestHandler(Request selected) {
+        for (Object s : selected.getCatalog()) {
+            synchronized (lock1) {
+                Item borrowItem = getEqualItem(catalog, (Item) (s));
+                borrowItem.setAvailable(false);
+                catalog.remove(borrowItem);
+                itemsCollection.findOneAndReplace(Filters.eq("isbn", borrowItem.getIsbn()), borrowItem);
+                selected.getCart().add(borrowItem);
+//                System.out.println(Arrays.toString(selected.getCart().toArray()));
+            }
+        }
+    }
+
+    public void returnRequestHandler(Request selected) {
+        for (Object s : selected.getCatalog()) {
+            synchronized (lock2) {
+                Item returnItem = (Item) (s);
+                returnItem.setAvailable(true);
+                itemsCollection.findOneAndReplace(Filters.eq("isbn", returnItem.getIsbn()), returnItem);
+                catalog.add(returnItem);
+                selected.getCart().remove(getEqualItem(selected.getCart(), returnItem));
+            }
+        }
+    }
+
+    public ArrayList<String> updateUserCart(Request selected) {
+        ArrayList<String> newList = new ArrayList<String>();
+        for (Item i : selected.getCart()) {
+            newList.add(i.getIsbn());
+        }
+
+        collection.updateOne(
+                Filters.eq("_id", new ObjectId(selected.getId())),
+                Updates.combine(
+                        Updates.set("checkedOutBooks", newList)
+                )
+        );
+        return newList;
+    }
+
+    public String addUser(DBRequest dbRequest) {
+        Document query = new Document("username", dbRequest.getUsername());
+        MongoCursor<Document> cursor = collection.find(query).cursor();
+        int available = cursor.available();
+
+        String id = null;
+        if (available == 0) {
+            Document userDocument = new Document()
+                    .append("username", dbRequest.getUsername())
+                    .append("password", dbRequest.getPassword())
+                    .append("checkedOutBooks", new ArrayList<String>())
+                    .append("imageURI", "");
+            collection.insertOne(userDocument);
+            id = collection.find(userDocument).first().get("_id", ObjectId.class).toString();
+        }
+
+        return id;
+    }
+
+    public ArrayList<String> confirmUser(DBRequest dbRequest, ArrayList<Item> cart) {
+
+        Document query = new Document("username", dbRequest.getUsername()).append("password", dbRequest.getPassword());
+        MongoCursor cursor = collection.find(query).cursor();
+        int available = cursor.available();
+        boolean found = (available > 0);
+
+        ArrayList<String> res = new ArrayList<>();
+        if (found) {
+            Document document = (Document) cursor.next();
+            res.add(document.get("_id", ObjectId.class).toHexString());
+            ArrayList isbns = document.get("checkedOutBooks", ArrayList.class);
+            if (!isbns.isEmpty()) {
+                for (Object isbn : isbns) {
+                    Item toAdd = itemsCollection.find(Filters.eq("isbn", isbn)).first();
+                    cart.add(toAdd);
+                }
+            }
+
+            res.add(document.get("imageURI", String.class));
+            return res;
+        }
+        return null;
+    }
+
+    public void addImage(DBRequest dbRequest) {
+        collection.updateOne(
+                Filters.eq("_id", new ObjectId(dbRequest.getId())),
+                Updates.combine(
+                        Updates.set("imageURI", dbRequest.getResult())
+                )
+        );
     }
 
     private Item getEqualItem(List<Item> list, Item s) {
