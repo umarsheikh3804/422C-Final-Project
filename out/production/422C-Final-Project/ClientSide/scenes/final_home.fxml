@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY,  IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientSide.HomeController">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="401.0" stroke="BLACK" strokeType="INSIDE" width="640.0" />
+        <SplitPane dividerPositions="0.7068965517241379" layoutX="-1.0" layoutY="45.0" prefHeight="356.0" prefWidth="640.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="360.0" prefWidth="448.0">
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="356.0" stroke="BLACK" strokeType="INSIDE" width="448.0" />
+                <ScrollPane layoutX="15.0" layoutY="75.0" prefHeight="231.0" prefWidth="420.0">
+               <content>
+                  <TableView fx:id="tableView" prefHeight="259.0" prefWidth="450.0">
+                  </TableView>
+               </content>
+                </ScrollPane>
+
+                <TextField fx:id="search_text" layoutX="186.0" layoutY="12.0" prefHeight="24.0" prefWidth="247.0" promptText="Search Item" />
+                <Button fx:id="checkout_button" layoutX="15.0" layoutY="313.0" mnemonicParsing="false" onAction="#checkout_clicked" prefHeight="25.0" prefWidth="420.0" text="Checkout">
+                    <font>
+                        <Font name="Calibri" size="12.0" />
+                    </font>
+                </Button>
+                <Label layoutX="16.0" layoutY="12.0" text="Library Catalog" textFill="#ae6f00">
+                    <font>
+                        <Font name="Book Antiqua" size="16.0" />
+                    </font>
+                </Label>
+                <Button fx:id="search_button" layoutX="373.0" layoutY="12.0" mnemonicParsing="false" onAction="#search_clicked" prefHeight="24.0" prefWidth="60.0" text="Search">
+                    <font>
+                        <Font name="Calibri" size="12.0" />
+                    </font>
+                </Button>
+            <ComboBox fx:id="typeFilter" layoutX="16.0" layoutY="44.0" onAction="#selectType" prefHeight="25.0" prefWidth="74.0" promptText="Type" />
+            <ComboBox fx:id="languageFilter" layoutX="174.0" layoutY="44.0" onAction="#selectLanguage" prefHeight="25.0" prefWidth="100.0" promptText="Language" />
+            <ComboBox fx:id="genreFilter" layoutX="95.0" layoutY="44.0" onAction="#selectGenre" prefHeight="25.0" prefWidth="74.0" promptText="Genre" />
+            <Button fx:id="resetFilter" layoutX="280.0" layoutY="44.0" mnemonicParsing="false" onAction="#resetClicked" prefHeight="25.0" prefWidth="60.0" text="Reset">
+               <font>
+                  <Font name="Calibri" size="12.0" />
+               </font>
+            </Button>
+            <ComboBox fx:id="sortBy" layoutX="350.0" layoutY="44.0" onAction="#selectSort" prefHeight="25.0" prefWidth="83.0" promptText="Sort By" />
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="304.0">
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#a8b3bc" height="356.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+                <Button fx:id="return_button" layoutX="14.0" layoutY="312.0" mnemonicParsing="false" onAction="#return_clicked" prefHeight="25.0" prefWidth="159.0" text="Return">
+                    <font>
+                        <Font name="Calibri" size="12.0" />
+                    </font>
+                </Button>
+                <Label layoutX="48.0" layoutY="14.0" text="Current Items" textFill="#ae6f00">
+                    <font>
+                        <Font name="Book Antiqua" size="16.0" />
+                    </font>
+                </Label>
+            <ListView fx:id="listView" layoutX="13.0" layoutY="39.0" prefHeight="266.0" prefWidth="159.0" />
+            </AnchorPane>
+        </SplitPane>
+      <Pane prefHeight="48.0" prefWidth="640.0">
+         <children>
+            <ImageView fx:id="userProfile" fitHeight="40.0" fitWidth="40.0" layoutX="500.0" layoutY="3.0" onMouseClicked="#profileSelected" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/profilePic.jpg" />
+               </image>
+            </ImageView>
+              <Button fx:id="logout_button" layoutX="559.0" layoutY="12.0" mnemonicParsing="false" onAction="#logout_clicked" prefHeight="25.0" prefWidth="67.0" text="Logout">
+                  <font>
+                      <Font name="Calibri" size="12.0" />
+                  </font>
+              </Button>
+              <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="14.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                      <Image url="@images/image.png" />
+                  </image>
+              </ImageView>
+              <Label layoutX="63.0" layoutY="10.0" text="Welcome Back!" textFill="#ae6f00">
+                  <font>
+                      <Font name="Book Antiqua" size="20.0" />
+                  </font>
+              </Label>
+         </children>
+      </Pane>
+    </AnchorPane>
+   <effect>
+      <ColorAdjust />
+   </effect>
+</VBox>

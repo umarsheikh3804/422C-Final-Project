@@ -48,8 +48,8 @@ public class LoginController {
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
 
-    private MediaPlayer player1 =  new MediaPlayer(new Media(new File("ClientSide/sounds/errorSound.mp3").toURI().toString()));
-    private MediaPlayer player2 =  new MediaPlayer(new Media(new File("ClientSide/sounds/successSound.mp3").toURI().toString()));
+    private MediaPlayer player1 =  new MediaPlayer(new Media(new File("sounds/errorSound.mp3").toURI().toString()));
+    private MediaPlayer player2 =  new MediaPlayer(new Media(new File("sounds/successSound.mp3").toURI().toString()));
 
     public void init(Stage primaryStage, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.stage = primaryStage;
